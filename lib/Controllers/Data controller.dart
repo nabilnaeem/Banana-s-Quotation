@@ -1,10 +1,12 @@
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/quote%20model.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Data_controller extends GetxController{
+  double total_quote_in_reivew=0.0;
   final supabase=Supabase.instance.client;
   List <Client_Model> Clints=[];
   List <Account_manger_Model> Account_manger=[];
@@ -93,5 +95,12 @@ update();
     }else{
       print('object');
     }
+  }
+  get_total_quote(List price,List quantity,bool Update){
+    total_quote_in_reivew=0.0;
+    total_quote_in_reivew=IterableZip([price, quantity])
+        .map((list) => list[0] * list[1])
+        .reduce((a, b) => a + b);
+   Update? update():(){};
   }
 }

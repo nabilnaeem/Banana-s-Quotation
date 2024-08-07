@@ -46,7 +46,7 @@ List <Item_Model> items=[];
   Quotation_Model quotation;
   Data_controller data;
   bool edit;
-
+  double total=0.0;
   _New_QuoteState(this.quotation, this.edit,this.data,this.ui);
 
   @override
@@ -61,15 +61,17 @@ List <Item_Model> items=[];
     price=List.generate(1, (index) => TextEditingController());
   }
   edit_quote(){
+
     item=List.generate(quotation.items.length, (index) => TextEditingController());
     quantity=List.generate(item.length, (index) => TextEditingController());
     price=List.generate(item.length, (index) => TextEditingController());
+    data.get_total_quote(quotation.items.map((e) => e.price).toList(), quotation.items.map((e) => e.quantity).toList(),false);
     for (int i=0; i< quotation.items.length;i++){
       setState(() {
         item[i].text=quotation.items[i].item;
         quantity[i].text=quotation.items[i].quantity.toString();
         price[i].text=quotation.items[i].price.toString();
-        total[i]=(quotation.items[i].quantity*quotation.items[i].price);
+        // total[i]=(quotation.items[i].quantity*quotation.items[i].price);
 
       });
     }
@@ -82,7 +84,7 @@ List <Item_Model> items=[];
 
     });
   }
-  Map total={};
+
   @override
   Widget build(BuildContext context) {
 
@@ -109,7 +111,7 @@ List <Item_Model> items=[];
                 client_model: client,
                 time: selectedDate,
                 account_manger_model: account_manger,
-                total: total.values!.fold(0.0, (sum, item) => sum + item),
+                total: total,
                 items: items);
             Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[quotaion_model])));
            },
@@ -522,7 +524,7 @@ List <Item_Model> items=[];
                     SizedBox(
                       width: w,
                         height: h/2,
-                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui))),
+                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui),controller)),
                   ],
                 ),
                 Divider(),
@@ -531,7 +533,7 @@ List <Item_Model> items=[];
                   children: [
                     Text('Total :',style: TextStyle(fontWeight: FontWeight.bold),),
                     SizedBox(width: 20,),
-                    Text(total.values!.fold(0.0, (sum, item) => sum + item).toString(),style: TextStyle(fontWeight: FontWeight.bold))
+                    Text(controller.total_quote_in_reivew.toString(),style: TextStyle(fontWeight: FontWeight.bold))
                   ],
                 ),
                 Divider(),

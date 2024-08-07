@@ -1,3 +1,4 @@
+import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Controllers/widgets.dart';
 import 'package:banana/models/item%20model.dart';
 import 'package:banana/models/quote%20model.dart';
@@ -24,17 +25,20 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 
 class My_Table extends StatefulWidget {
   New_Quotation_Model quotation;
+  Data_controller controller;
 
-  My_Table(this.quotation);
+  My_Table(this.quotation,this.controller);
 
   @override
-  State<My_Table> createState() => _My_TableState(quotation);
+  State<My_Table> createState() => _My_TableState(quotation,controller);
 }
 
 class _My_TableState extends State<My_Table> {
+  Data_controller controller;
+
   New_Quotation_Model quotation;
 
-  _My_TableState(this.quotation);
+  _My_TableState(this.quotation,this.controller);
 
   List <Item_Model> items=[];
 
@@ -54,13 +58,14 @@ class _My_TableState extends State<My_Table> {
 
 @override
 void initState() {
+
 int sum=ui.fold(0, (sum, item) => sum + item);
 items_ui=List.generate(sum, (index) => TextEditingController());
 quantity_ui=List.generate(sum, (index) => TextEditingController());
 price_ui=List.generate(sum, (index) => TextEditingController());
 total_ui=List.generate(ui.length, (index) => TextEditingController());
 ui=quotation.ui;
-items=quotation.quotation.items.isEmpty?[Item_Model(item: '', quantity: 1, price: 0)]:quotation.quotation.items;
+items=quotation.quotation.items.isEmpty?[Item_Model(item: '', quantity: 1, price: 1)]:quotation.quotation.items;
 for (int i=0; i< items.length;i++){
   setState(() {
     items_ui[i].text=items[i].item;
@@ -69,54 +74,57 @@ for (int i=0; i< items.length;i++){
   });
 
 }
+
 }
 int sum=0;
 int sum2=0;
 int ui_index=0;
+
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Column(
-              children: ui.asMap().map((key, value) {
-                sum=key==0?0:sum+ui[key-1];
-                return MapEntry(key, key==0?first_table(items.sublist(0, ui[key]),key):secound_table(items.sublist(sum, (sum)+ui[key]),key));
-              }).values.toList(),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      add_new_row();
+    return  Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(
+                children: ui.asMap().map((key, value) {
+                  sum=key==0?0:sum+ui[key-1];
+                  return MapEntry(key, key==0?first_table(items.sublist(0, ui[key]),key,controller):secound_table(items.sublist(sum, (sum)+ui[key]),key,controller));
+                }).values.toList(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        add_new_row();
 
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    margin: EdgeInsets.all(8),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.black87,
-                      borderRadius: BorderRadius.circular(5),
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      margin: EdgeInsets.all(8),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(5),
 
+                      ),
+                      child: Text('Add new package',style: TextStyle(color: Colors.white),),
                     ),
-                    child: Text('Add new package',style: TextStyle(color: Colors.white),),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 
-  Widget first_table(List<Item_Model> e,int key){
+  Widget first_table(List<Item_Model> e,int key,Data_controller controller){
+
     double sum_total=IterableZip([price_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
     return Table(
         border: TableBorder.all(),
@@ -156,6 +164,7 @@ int ui_index=0;
                 TextFormField(
                   textAlign: TextAlign.center,
                   onChanged: (e){
+                    update_total(controller);
                     setState(() {
 
                     });
@@ -168,6 +177,7 @@ int ui_index=0;
             Table(border: TableBorder.all(), children: List.generate(e.length, (index) => TableRow(children:[ Center(child: TextFormField(
               textAlign: TextAlign.center,
               onChanged: (e){
+                update_total(controller);
                 setState(() {
 
                 });
@@ -176,6 +186,7 @@ int ui_index=0;
             Table(border: TableBorder.all(), children: List.generate(e.length, (index) => TableRow(children:[ Center(child: TextFormField(
               textAlign: TextAlign.center,
               onChanged: (e){
+                update_total(controller);
                 setState(() {
 
                 });
@@ -184,8 +195,10 @@ int ui_index=0;
             Center(child: Text(sum_total.toString())),
           ]),
     ]);
+
   }
-  Widget secound_table(List<Item_Model> e,int key){
+  Widget secound_table(List<Item_Model> e,int key,Data_controller controller){
+
     double sum_total=IterableZip([price_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
     return Table(
         border: TableBorder.all(),
@@ -215,6 +228,7 @@ int ui_index=0;
                 TextFormField(
                   textAlign: TextAlign.center,
                   onChanged: (e){
+                    update_total(controller);
                     setState(() {
 
                     });
@@ -227,6 +241,7 @@ int ui_index=0;
             Table(border: TableBorder.all(), children: List.generate(e.length, (index) => TableRow(children:[ Center(child: TextFormField(
               textAlign: TextAlign.center,
               onChanged: (e){
+                update_total(controller);
                 setState(() {
 
                 });
@@ -235,6 +250,7 @@ int ui_index=0;
             Table(border: TableBorder.all(), children: List.generate(e.length, (index) => TableRow(children:[ Center(child: TextFormField(
               textAlign: TextAlign.center,
               onChanged: (e){
+                update_total(controller);
                 setState(() {
 
                 });
@@ -288,7 +304,7 @@ print(index);
 
   });
 
-
+  update_total(controller);
 
 
 }
@@ -309,6 +325,7 @@ on_below(int index){
     price_ui.insert(index+1, TextEditingController());
     ui[ui_index]++;
   });
+  update_total(controller);
 
 
 
@@ -329,6 +346,7 @@ on_delete(int index){
     ui[ui_index]==1?ui.removeAt(ui_index):ui[ui_index]--;
 
   });
+  update_total(controller);
 }
 add_new_row(){
     setState(() {
@@ -340,5 +358,16 @@ add_new_row(){
       items_ui.add(TextEditingController());
 
     });
+    update_total(controller);
+}
+update_total(Data_controller controller){
+
+   if(price_ui.isNotEmpty || quantity_ui.isNotEmpty){
+     controller.get_total_quote(price_ui.map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(),quantity_ui.map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(),true);
+     setState(() {
+
+     });
+
+   }
 }
 }
