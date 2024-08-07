@@ -58,4 +58,18 @@ class Quotation_Model{
   }
 
 }
+class New_Quotation_Model{
+  Quotation_Model quotation;
+  List<int> ui;
+
+
+  New_Quotation_Model(
+      {
+        required this.quotation,
+        required this.ui,
+
+      });
+
+
+}
 

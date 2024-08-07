@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Views/preview.dart';
+import 'package:banana/Views/test%202.dart';
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/item%20model.dart';
@@ -18,15 +19,17 @@ class New_Quote extends StatefulWidget {
 Quotation_Model quotation;
 bool edit;
 Data_controller data;
+List <int> ui;
 
 
-New_Quote(this.quotation, this.edit,this.data);
+New_Quote(this.quotation, this.edit,this.data,this.ui);
 
   @override
-  State<New_Quote> createState() => _New_QuoteState(quotation,edit,data);
+  State<New_Quote> createState() => _New_QuoteState(quotation,edit,data,ui);
 }
 
 class _New_QuoteState extends State<New_Quote> {
+  List <int> ui;
   TextEditingController dec=TextEditingController();
   TextEditingController name=TextEditingController();
   TextEditingController contact=TextEditingController();
@@ -44,7 +47,7 @@ List <Item_Model> items=[];
   Data_controller data;
   bool edit;
 
-  _New_QuoteState(this.quotation, this.edit,this.data);
+  _New_QuoteState(this.quotation, this.edit,this.data,this.ui);
 
   @override
   void initState() {
@@ -516,229 +519,10 @@ List <Item_Model> items=[];
                 ),
                 Row(
                   children: [
-                    Expanded(
-                      child: DataTable(
-
-
-
-                        columnSpacing: 0,
-                        horizontalMargin: 0,
-
-                        border: TableBorder.symmetric(
-                            inside: BorderSide(width: h/2000, color: Colors.black),
-                            outside: BorderSide(width: h/2000, color: Colors.black)
-                        ),
-                        columns: <DataColumn>[
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Id',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Item',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Price',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Total',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-                          DataColumn(
-
-                              label: Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('Delete',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                                  ],
-                                ),
-                              )),
-
-                        ],
-                        rows: item.asMap().map((key, value) => MapEntry(key,
-                            DataRow(
-                                cells: [
-                                  DataCell(
-                                    SizedBox(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text((key+1).toString()),
-                                        ],
-                                      ),
-                                    ),),
-                                  DataCell(
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Expanded(child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: TextFormField(
-                                            textAlign: TextAlign.center,
-
-                                            onChanged: (v){
-                                              setState(() {
-
-                                              });
-                                            },
-                                            controller: item[key],
-                                            decoration: InputDecoration(
-                                                border: InputBorder.none
-                                            ),
-                                          ),
-                                        ))
-                                      ],
-                                    ),),
-                                  DataCell(
-                                    SizedBox(
-                                      child: Row(
-                                        children: [
-                                          Expanded(child: Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType: TextInputType.number,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter.digitsOnly, // Allow only digits
-                                              ],
-
-                                              onChanged: (v){
-                                                setState(() {
-                                                  total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
-
-                                                });
-                                              },
-                                              controller: quantity[key],
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none
-                                              ),
-                                            ),
-                                          ))
-                                        ],
-                                      ),
-                                    ),),
-                                  DataCell(
-                                    SizedBox(
-                                      child: Row(
-                                        children: [
-                                          Expanded(child: Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: TextFormField(
-                                              textAlign: TextAlign.center,
-                                              keyboardType: TextInputType.number,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter.digitsOnly, // Allow only digits
-                                              ],
-
-                                              onChanged: (v){
-                                                setState(() {
-                                                  total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
-
-                                                });
-                                              },
-                                              controller: price[key],
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none
-                                              ),
-                                            ),
-                                          ))
-                                        ],
-                                      ),
-                                    ),),
-                                  DataCell(
-                                    SizedBox(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text((double.parse(price[key].text.isEmpty?'0':price[key].text)*double.parse(quantity[key].text.isEmpty?'0':quantity[key].text)).toString())
-                                        ],
-                                      ),
-                                    ),),
-                                  DataCell(
-                                    SizedBox(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(onPressed: (){
-                                            setState(() {
-                                              item.removeAt(key);
-                                              quantity.removeAt(key);
-                                              price.removeAt(key);
-                                              total.remove(key);
-                                            });
-                                          },icon: Icon(Icons.close,size: 15,color: Colors.red,),)
-                                        ],
-                                      ),
-                                    ),),
-
-
-
-                                ])
-                        )).values.toList(),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: (){
-                        setState(() {
-                          item.add(TextEditingController());
-                          quantity.add(TextEditingController());
-                          price.add(TextEditingController());
-
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        margin: EdgeInsets.all(8),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(5),
-
-                        ),
-                        child: Text('Add Row',style: TextStyle(color: Colors.white),),
-                      ),
-                    ),
+                    SizedBox(
+                      width: w,
+                        height: h/2,
+                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui))),
                   ],
                 ),
                 Divider(),
@@ -885,26 +669,257 @@ List <Item_Model> items=[];
 
 
 
-// DataTable(
-//               columns: <DataColumn>[
-//                 DataColumn(label: Text('Name')),
-//                 DataColumn(label: Text('Code')),
-//                 DataColumn(label: Text('Credits')),
+//Column(
+//               children: [
+//                 Row(
+//                   children: [
+//                     Expanded(
+//                       child: Container(
+//                           padding: EdgeInsets.all(5),
+//                           color: Colors.black87,
+//                           child: Text("Items", style: TextStyle(
+//                               color: Colors.white,
+//                               fontWeight: FontWeight.bold))),
+//                     ),
+//                   ],
+//                 ),
+//                 Row(
+//                   children: [
+//                     Expanded(
+//                       child: DataTable(
+//
+//
+//
+//                         columnSpacing: 0,
+//                         horizontalMargin: 0,
+//
+//                         border: TableBorder.symmetric(
+//                             inside: BorderSide(width: h/2000, color: Colors.black),
+//                             outside: BorderSide(width: h/2000, color: Colors.black)
+//                         ),
+//                         columns: <DataColumn>[
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Id',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Item',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Price',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Total',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//                           DataColumn(
+//
+//                               label: Expanded(
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Text('Delete',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+//                                   ],
+//                                 ),
+//                               )),
+//
+//                         ],
+//                         rows: item.asMap().map((key, value) => MapEntry(key,
+//                             DataRow(
+//                                 cells: [
+//                                   DataCell(
+//                                     SizedBox(
+//                                       child: Row(
+//                                         mainAxisAlignment: MainAxisAlignment.center,
+//                                         children: [
+//                                           Text((key+1).toString()),
+//                                         ],
+//                                       ),
+//                                     ),),
+//                                   DataCell(
+//                                     Row(
+//                                       mainAxisAlignment: MainAxisAlignment.center,
+//                                       children: [
+//                                         Expanded(child: Padding(
+//                                           padding: const EdgeInsets.all(5.0),
+//                                           child: TextFormField(
+//                                             textAlign: TextAlign.center,
+//
+//                                             onChanged: (v){
+//                                               setState(() {
+//
+//                                               });
+//                                             },
+//                                             controller: item[key],
+//                                             decoration: InputDecoration(
+//                                                 border: InputBorder.none
+//                                             ),
+//                                           ),
+//                                         ))
+//                                       ],
+//                                     ),),
+//                                   DataCell(
+//                                     SizedBox(
+//                                       child: Row(
+//                                         children: [
+//                                           Expanded(child: Padding(
+//                                             padding: const EdgeInsets.all(5.0),
+//                                             child: TextFormField(
+//                                               textAlign: TextAlign.center,
+//                                               keyboardType: TextInputType.number,
+//                                               inputFormatters: [
+//                                                 FilteringTextInputFormatter.digitsOnly, // Allow only digits
+//                                               ],
+//
+//                                               onChanged: (v){
+//                                                 setState(() {
+//                                                   total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
+//
+//                                                 });
+//                                               },
+//                                               controller: quantity[key],
+//                                               decoration: InputDecoration(
+//                                                   border: InputBorder.none
+//                                               ),
+//                                             ),
+//                                           ))
+//                                         ],
+//                                       ),
+//                                     ),),
+//                                   DataCell(
+//                                     SizedBox(
+//                                       child: Row(
+//                                         children: [
+//                                           Expanded(child: Padding(
+//                                             padding: const EdgeInsets.all(5.0),
+//                                             child: TextFormField(
+//                                               textAlign: TextAlign.center,
+//                                               keyboardType: TextInputType.number,
+//                                               inputFormatters: [
+//                                                 FilteringTextInputFormatter.digitsOnly, // Allow only digits
+//                                               ],
+//
+//                                               onChanged: (v){
+//                                                 setState(() {
+//                                                   total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
+//
+//                                                 });
+//                                               },
+//                                               controller: price[key],
+//                                               decoration: InputDecoration(
+//                                                   border: InputBorder.none
+//                                               ),
+//                                             ),
+//                                           ))
+//                                         ],
+//                                       ),
+//                                     ),),
+//                                   DataCell(
+//                                     SizedBox(
+//                                       child: Row(
+//                                         mainAxisAlignment: MainAxisAlignment.center,
+//                                         children: [
+//                                           Text((double.parse(price[key].text.isEmpty?'0':price[key].text)*double.parse(quantity[key].text.isEmpty?'0':quantity[key].text)).toString())
+//                                         ],
+//                                       ),
+//                                     ),),
+//                                   DataCell(
+//                                     SizedBox(
+//                                       child: Row(
+//                                         mainAxisAlignment: MainAxisAlignment.center,
+//                                         children: [
+//                                           IconButton(onPressed: (){
+//                                             setState(() {
+//                                               item.removeAt(key);
+//                                               quantity.removeAt(key);
+//                                               price.removeAt(key);
+//                                               total.remove(key);
+//                                             });
+//                                           },icon: Icon(Icons.close,size: 15,color: Colors.red,),)
+//                                         ],
+//                                       ),
+//                                     ),),
+//
+//
+//
+//                                 ])
+//                         )).values.toList(),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.end,
+//                   children: [
+//                     InkWell(
+//                       onTap: (){
+//                         setState(() {
+//                           item.add(TextEditingController());
+//                           quantity.add(TextEditingController());
+//                           price.add(TextEditingController());
+//
+//                         });
+//                       },
+//                       child: Container(
+//                         padding: EdgeInsets.all(8),
+//                         margin: EdgeInsets.all(8),
+//                         alignment: Alignment.center,
+//                         decoration: BoxDecoration(
+//                           color: Colors.black87,
+//                           borderRadius: BorderRadius.circular(5),
+//
+//                         ),
+//                         child: Text('Add Row',style: TextStyle(color: Colors.white),),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 Divider(),
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: [
+//                     Text('Total :',style: TextStyle(fontWeight: FontWeight.bold),),
+//                     SizedBox(width: 20,),
+//                     Text(total.values!.fold(0.0, (sum, item) => sum + item).toString(),style: TextStyle(fontWeight: FontWeight.bold))
+//                   ],
+//                 ),
+//                 Divider(),
+//                 SizedBox(height: h/10,)
 //               ],
-//               rows: quotaion_model.items.map((subject) {
-//                 return DataRow(cells: [
-//                   DataCell(Text(subject.item)),
-//                   DataCell(Text(subject.quantity.toString())),
-//                   DataCell(Text(subject.price.toString())),
-//                 ]);
-//               }).toList(),
 //             ),
-
-
-//  get_data()async{
-//     final data=await supabase.from('posts').select('*,users!posts_user_id_fkey(*),likes(*),comments(*)');
-//     print(data);
-//
-//
-//
-//   }

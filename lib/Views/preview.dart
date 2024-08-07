@@ -65,7 +65,7 @@ List list=[1,2];
                 if(!edit){
                   Add_quote();
                 }else{
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0],true,controller)));}
+            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0],true,controller,[1])));}
           }):SizedBox(),
         body: ListView.builder(
           itemCount: quotation.length,
@@ -124,7 +124,7 @@ List list=[1,2];
 
                             InkWell(
                               onTap: (){
-                               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i],true,controller)));},
+                               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i],true,controller,[1])));},
                               child: Container(
                                   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
                                   decoration: BoxDecoration(
