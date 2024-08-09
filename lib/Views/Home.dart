@@ -4,6 +4,7 @@ import 'package:banana/Views/View%20quots.dart';
 import 'package:banana/Views/history.dart';
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
+import 'package:banana/models/item%20model.dart';
 import 'package:banana/models/quote%20model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -50,8 +51,12 @@ class _HomeState extends State<Home> {
               ListTile(
                 onTap: (){
                   Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(Quotation_Model(
+                    ui: [1],
                     is_original: true,original_id: '',
-                        id: 'id', dec: 'dec', client_model: Client_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), time: DateTime.now(), account_manger_model: Account_manger_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), total: 0, items: []),false,controller,[1])));
+                        id: 'iid', dec: 'dec', client_model: Client_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), time: DateTime.now(), account_manger_model: Account_manger_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), total: 0, items: [
+                          Item_Model(item: '', quantity: 0, price: 0),
+
+                  ]),false,controller,[1])));
                 },
                 title: Text('Create New Quotation'),trailing: Icon(Icons.arrow_forward_ios_rounded),),
               Divider(),

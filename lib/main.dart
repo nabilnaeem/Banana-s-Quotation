@@ -4,6 +4,8 @@ import 'package:banana/Views/First.dart';
 import 'package:banana/Views/Login.dart';
 import 'package:banana/Views/history.dart';
 import 'package:banana/Views/new%20quote.dart';
+import 'package:banana/models/item%20model.dart';
+import 'package:banana/models/quote%20model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -14,6 +16,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'Views/preview.dart';
 import 'firebase_options.dart';
+import 'models/account manger model.dart';
+import 'models/cinet model.dart';
 String url ='https://peymziuamkkqjkatoqex.supabase.co';
 String anonKey ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBleW16aXVhbWtrcWprYXRvcWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MTQzMjAsImV4cCI6MjAzNzQ5MDMyMH0.gPP7ynr3eCTgHYPXljF22Bfo3YBxwn_rGl3_QGtI0so';
 void main() async{
@@ -21,7 +25,6 @@ void main() async{
 }
 
 class MyApp extends StatelessWidget {
-
 
 
   @override

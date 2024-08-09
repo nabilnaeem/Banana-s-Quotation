@@ -213,7 +213,7 @@ class _View_QuotationsState extends State<View_Quotations> {
                           onTap: (){
                             Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(
                                 true,
-                                quotes
+                                quotes.map((e) => New_Quotation_Model(quotation: e, ui: [1])).toList()
                             )));
                           },
                           child: Column(
@@ -221,7 +221,7 @@ class _View_QuotationsState extends State<View_Quotations> {
                               Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50),
+                                  Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50,controller,[1]),
                                   Container(
                                       padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
                                       decoration: BoxDecoration(

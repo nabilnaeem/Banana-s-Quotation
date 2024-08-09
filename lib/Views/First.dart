@@ -1,5 +1,6 @@
 import 'package:banana/Views/Home.dart';
 import 'package:banana/Views/Login.dart';
+import 'package:banana/Views/preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -7,6 +8,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../Controllers/binding.dart';
 import '../firebase_options.dart';
 import '../main.dart';
+import '../models/account manger model.dart';
+import '../models/cinet model.dart';
+import '../models/item model.dart';
+import '../models/quote model.dart';
 
 class First extends StatefulWidget {
   const First({Key? key}) : super(key: key);
@@ -16,6 +21,7 @@ class First extends StatefulWidget {
 }
 
 class _FirstState extends State<First> {
+
   @override
   void initState() {
    futur();
@@ -55,7 +61,9 @@ class _FirstState extends State<First> {
     if(Supabase.instance.client.auth.currentSession==null){
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Login()));
     }else{
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+
+      // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=> QuotePdf(false,[New_Quotation_Model(quotation: quotation_model, ui: [1])])));
+       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
     }
   }
 }

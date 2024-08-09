@@ -378,7 +378,7 @@ class _HistoryState extends State<History> {
                       onTap: (){
                         Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(
                             true,
-                          quotes
+                            quotes.map((e) => New_Quotation_Model(quotation: e, ui: e.ui)).toList()
                         )));
                       },
                       child: Column(
@@ -386,7 +386,7 @@ class _HistoryState extends State<History> {
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                              Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50),
+                              Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50,controller,filterEvents()[i].ui),
                               Container(
                                   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
                                   decoration: BoxDecoration(

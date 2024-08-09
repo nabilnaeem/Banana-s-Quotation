@@ -2,7 +2,7 @@ import 'dart:html';
 
 import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Views/preview.dart';
-import 'package:banana/Views/test%202.dart';
+import 'package:banana/Views/table.dart';
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/item%20model.dart';
@@ -95,25 +95,19 @@ List <Item_Model> items=[];
       builder:(controller)=> Scaffold(
         floatingActionButton: InkWell(
           onTap: (){
-
-            items=[];
-            for(int i =0; i<item.length;i++){
-                  items.add(Item_Model(item: item[i].text,
-                      quantity: double.parse(quantity[i].text),
-                      price: double.parse(price[i].text)));}
-
-
             Quotation_Model quotaion_model=Quotation_Model(
+              ui: ui,
               is_original: !edit,
                 original_id: edit?quotation.is_original?quotation.id:quotation.original_id:'',
-                id: 'id',
+                id: quotation.id,
                 dec: dec.text,
                 client_model: client,
                 time: selectedDate,
                 account_manger_model: account_manger,
-                total: total,
-                items: items);
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[quotaion_model])));
+                total: controller.total_quote_in_reivew,
+                items: controller.Table_Items);
+
+            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[New_Quotation_Model(quotation: quotaion_model, ui: controller.UI)])));
            },
           child: Container(
             padding: EdgeInsets.all(5),
@@ -524,7 +518,7 @@ List <Item_Model> items=[];
                     SizedBox(
                       width: w,
                         height: h/2,
-                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui),controller)),
+                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui),controller,h,edit: true,)),
                   ],
                 ),
                 Divider(),

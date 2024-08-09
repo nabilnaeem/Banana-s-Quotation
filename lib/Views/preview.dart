@@ -1,14 +1,24 @@
+import 'dart:convert';
+import 'dart:core';
+import 'dart:core';
 import 'dart:html' as html; // For web-specific HTML functionality
 import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Controllers/widgets.dart';
 import 'package:banana/Views/new%20quote.dart';
+import 'package:banana/Views/table.dart';
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/item%20model.dart';
 import 'package:banana/models/quote%20model.dart';
+import 'package:banana/models/resqust_model.dart';
+import 'package:banana/models/user_model.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,10 +26,17 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:typed_data';
 
 class QuotePdf extends StatefulWidget {
   bool edit;
-  List<Quotation_Model> quotation;
+  List<New_Quotation_Model> quotation;
 
 
   QuotePdf(this.edit, this.quotation);
@@ -29,20 +46,20 @@ class QuotePdf extends StatefulWidget {
 }
 
 class _QuotePdfState extends State<QuotePdf> {
-  List<Quotation_Model> quotation;
+  List<New_Quotation_Model> quotation;
   bool edit;
 
 
   _QuotePdfState(this.quotation, this.edit);
 
   final pdf = pw.Document();
-  Map total={};
-List list=[1,2];
+
+
   final supabase=Supabase.instance.client;
 @override
   void initState() {
     // TODO: implement initState
-  quotation.sort((a, b) => b.time.compareTo(a.time));
+ quotation.sort((a, b) => b.quotation.time.compareTo(a.quotation.time));
 
   }
   @override
@@ -63,12 +80,12 @@ List list=[1,2];
           onPressed: (){
 
                 if(!edit){
-                  Add_quote();
+                  Add_quote(controller);
                 }else{
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0],true,controller,[1])));}
+            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0].quotation,true,controller,quotation[0].ui)));}
           }):SizedBox(),
         body: ListView.builder(
-          itemCount: quotation.length,
+          itemCount: quotation.map((e) => e.quotation).length,
             itemBuilder: (_,i)=>Padding(
               padding: const EdgeInsets.only(bottom: 15),
               child: Center(
@@ -84,13 +101,9 @@ List list=[1,2];
                       ),
 
 
-                      child: Banner(
-                        color: get_color(quotation[i].status),
-                        message: quotation[i].status,
-                          location: BannerLocation.topStart,
-                          child: Quotation_item(quotation[i],h )),
+                      child:Quotation_item(quotation[i].quotation, h, controller, quotation[i].ui),
                     ),
-                    quotation[i].is_original?  Positioned(
+                    quotation[i].quotation.is_original?  Positioned(
 
                       top: 10,right: 10,
                       child: Container(
@@ -124,7 +137,7 @@ List list=[1,2];
 
                             InkWell(
                               onTap: (){
-                               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i],true,controller,[1])));},
+                               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i].quotation,true,controller,[1])));},
                               child: Container(
                                   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
                                   decoration: BoxDecoration(
@@ -139,13 +152,13 @@ List list=[1,2];
                                 pop_up_dialog('', 'Choose', context, true,child: Container(
                                   color: Colors.white,
                                   child: Column(
-                                  children: status.map((e) => e==quotation[i].status?SizedBox():ListTile(title: Text(e),onTap: ()async{
+                                  children: status.map((e) => e==quotation[i].quotation.status?SizedBox():ListTile(title: Text(e),onTap: ()async{
                                     if(controller.current_user!=null){
                                       if(controller.current_user?.admin==true){
                                         Navigator.pop(context);
                                         pop_up_dialog('Status Changed', 'Done', context, false);
                                       }else {
-                                       await send_req(i,e);
+                                       // await send_req(i,e);
                                         Navigator.pop(context);
                                         pop_up_dialog('Waiting for Finance Approval', 'Done', context, false);
                                       }
@@ -172,20 +185,12 @@ List list=[1,2];
                   ],
                 ),
               ),
-            )),
+            ),
 
       ),
-    );
+    ));
   }
-send_req(int i,select)async{
-  try{
-    await supabase.from('Requests').insert({'quote':quotation[i].id,'comment':'Please change this Status to ${select}'}).select();
-  }catch(e){
-    print(e);
-    
-  }
-  
-}
+
   Color get_color(String status){
     Color color=Colors.black87;
     switch(status){
@@ -198,27 +203,61 @@ send_req(int i,select)async{
     }
     return color;
   }
-  Future Add_quote()async{
+  requst(Data_controller controller){
+  if(controller.current_user.admin){
+    Add_quote(controller);
+  }else{
+    Add_requst(controller);
+  }
+  }
+  Future Add_quote(Data_controller controller)async{
     try{
       final id =
-          await supabase.from('quote').upsert(quotation[0].tojson()).select();
-      print('passs 1');
-
-     !quotation[0].is_original? await supabase.from('quote').update({'original_id':quotation[0].original_id}).eq('id', id[0]['id']).select():{};
+          await supabase.from('quote').upsert(quotation[0].quotation.tojson()).select();
+      print('pass 1');
+     !quotation[0].quotation.is_original? await supabase.from('quote').update({'original_id':quotation[0].quotation.original_id}).eq('id', id[0]['id']).select():{};
       print('pass 2');
-      await supabase.from('items').insert(
-          quotation[0].items.map((e) => e.tojson(id[0]['id'])).toList());
+     await supabase.from('quote').update({'ui':controller.UI}).eq('id', id[0]['id']).select();
       print('pass 3');
+      await supabase.from('items').insert(
+          controller.Table_Items.map((e) => e.tojson(id[0]['id'])).toList());
+      print('pass 4');
+      quotation[0].quotation.id=id[0]['id'].toString();
+      await supabase.from('Requests').upsert(Request_model(id: 'id', comment: 'comment',
+          approval: controller.current_user.admin,
+          client: Client_Model(id: '0', name: 'name', phone: 'phone', e_mail: 'e_mail'),
+          user: controller.current_user, quotation: quotation[0].quotation).tojson_quote()).select();
+      print('pass 5');
     }catch(e){
       print(e);
     }
-    _generateAndDownloadPdf(quotation[0],620,true);
+   // _generateAndDownloadPdf(quotation[0],620,true);
 
 
   }
+  Future Add_requst(Data_controller controller)async{
+    try{
+      // await Add_quote(controller);
+
+
+      print('pass 1');
+    }catch(e){
+      print(e);
+    }
+   // _generateAndDownloadPdf(quotation[0],620,true);
+
+
+  }
+
 }
 
-void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
+
+
+
+
+
+void _generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) async {
+  int sum = 0;
   final pdf = pw.Document();
   final imageProvider = pw.MemoryImage(
     (await rootBundle.load('images/logo2.png')).buffer.asUint8List(),
@@ -264,7 +303,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          "Client: ${quotation.client_model.name}",
+                          "Client: ${quotation.quotation.client_model.name}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
                             fontSize: h / 65,
@@ -272,7 +311,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                         ),
                         pw.SizedBox(height: h / 40),
                         pw.Text(
-                          "Contact: ${quotation.client_model.name}",
+                          "Contact: ${quotation.quotation.client_model.name}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
                             fontSize: h / 65,
@@ -287,7 +326,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          "Date : ${(quotation.time.day)}/${(quotation.time.month)}/${(quotation.time.year)}",
+                          "Date : ${(quotation.quotation.time.day)}/${(quotation.quotation.time.month)}/${(quotation.quotation.time.year)}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
                             fontSize: h / 65,
@@ -295,7 +334,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                         ),
                         pw.SizedBox(height: h / 40),
                         pw.Text(
-                          "Description: ${quotation.dec}",
+                          "Description: ${quotation.quotation.dec}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
                             fontSize: h / 65,
@@ -307,116 +346,200 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                 ],
               ),
             ),
-            pw.Padding(
-              padding: pw.EdgeInsets.only(
-                top: h / 30,
-                bottom: 0,
-                right: h / 18,
-                left: h / 18,
-              ),
-              child: pw.Table(
-                border: pw.TableBorder.all(color: PdfColors.black, width: h / 2000),
+
+      pw.Padding(
+        padding: pw.EdgeInsets.only(top: h / 30, bottom: 0, right: h / 18, left: h / 18),
+        child: pw.Column(
+          children: quotation.ui.asMap().map((key, value) {
+             sum = key == 0 ? 0 : sum + quotation.ui[key - 1];
+
+            return MapEntry(
+              key,
+              key == 0
+                  ? pw.Table(
+                border: pw.TableBorder.symmetric(
+                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                ),
+                columnWidths: {
+                  0: pw.FlexColumnWidth(6),
+                  1: pw.FlexColumnWidth(4),
+                  2: pw.FlexColumnWidth(4),
+
+                },
+                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
                 children: [
                   pw.TableRow(
                     children: [
-                      pw.Padding(
-                        padding: pw.EdgeInsets.only(top: h/100,left:h/100,right: h/100,bottom: 0 ),
-                        child: pw.Text(
-                          'Item',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 85,
-                          ),
-                          textAlign: pw.TextAlign.center,
+                      pw.Center(
+                        child: pw.Padding(
+                          padding: pw.EdgeInsets.all(h / 90),
+                          child: pw.Text('Item', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
                         ),
                       ),
-                      pw.Padding(
-                        padding: pw.EdgeInsets.all(h / 100),
-                        child: pw.Text(
-                          'Quantity',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 85,
-                          ),
-                          textAlign: pw.TextAlign.center,
+                      pw.Center(
+                        child: pw.Padding(
+                          padding: pw.EdgeInsets.all(h / 90),
+                          child: pw.Text('Quantity', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
                         ),
                       ),
-                      pw.Padding(
-                        padding: pw.EdgeInsets.all(h / 100),
-                        child: pw.Text(
-                          'Price',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 85,
-                          ),
-                          textAlign: pw.TextAlign.center,
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: pw.EdgeInsets.all(h / 100),
-                        child: pw.Text(
-                          'Total',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 85,
-                          ),
-                          textAlign: pw.TextAlign.center,
+                      pw.Center(
+                        child: pw.Padding(
+                          padding: pw.EdgeInsets.all(h / 90),
+                          child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
                         ),
                       ),
                     ],
                   ),
-                  // Generate rows from your data list
-                  ...quotation.items.map(
-                     // Replace with your data length
-                        (index) => pw.TableRow(
-                      children: [
-                        pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 100),
-                          child: pw.Text(
-                            '${index.item}',
-                            style: pw.TextStyle(
-                              fontSize: h / 85,
-                            ),
-                            textAlign: pw.TextAlign.center,
-                          ),
+                  pw.TableRow(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                         ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 100),
-                          child: pw.Text(
-                            '${index.quantity}',
-                            style: pw.TextStyle(
-                              fontSize: h / 85,
-                            ),
-                            textAlign: pw.TextAlign.center,
-                          ),
+                        children: List.generate(
+                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                              (index) {
+                            final item = quotation.quotation.items[sum + index];
+                            return pw.TableRow(
+                              children: [
+                                pw.Center(
+                                  child: pw.Padding(
+                                    padding: pw.EdgeInsets.all(h / 85),
+                                    child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 100),
-                          child: pw.Text(
-                            '${index.price}',
-                            style: pw.TextStyle(
-                              fontSize: h / 85,
-                            ),
-                            textAlign: pw.TextAlign.center,
-                          ),
+                      ),
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                         ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 100),
-                          child: pw.Text(
-                            '${index.quantity*index.price}',
-                            style: pw.TextStyle(
-                              fontSize: h / 85,
-                            ),
-                            textAlign: pw.TextAlign.center,
-                          ),
+                        children: List.generate(
+                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                              (index) {
+                            final item = quotation.quotation.items[sum + index];
+                            return pw.TableRow(
+                              children: [
+                                pw.Center(
+                                  child: pw.Padding(
+                                    padding: pw.EdgeInsets.all(h / 85),
+                                    child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                      pw.Center(
+                        child: pw.Text(
+                          IterableZip([
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString(),
+                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+
+
+                    ],
                   ),
                 ],
-              ),
-            ),
-            pw.Row(
+              )
+                  : pw.Table(
+                border: pw.TableBorder.symmetric(
+                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                ),
+                columnWidths: {
+                  0: pw.FlexColumnWidth(5),
+                  1: pw.FlexColumnWidth(4),
+                  2: pw.FlexColumnWidth(4),
+                  3: pw.FlexColumnWidth(4),
+                },
+                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                children: [
+                  pw.TableRow(
+                    children: [
+                      pw.SizedBox(),
+                      pw.SizedBox(),
+
+                      pw.SizedBox(),
+                    ],
+                  ),
+                  pw.TableRow(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        children: List.generate(
+                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                              (index) {
+                            final item = quotation.quotation.items[sum + index];
+                            return pw.TableRow(
+                              children: [
+                                pw.Center(
+                                  child: pw.Padding(
+                                    padding: pw.EdgeInsets.all(h / 85),
+                                    child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        children: List.generate(
+                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                              (index) {
+                            final item = quotation.quotation.items[sum + index];
+                            return pw.TableRow(
+                              children: [
+                                pw.Center(
+                                  child: pw.Padding(
+                                    padding: pw.EdgeInsets.all(h / 85),
+                                    child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      pw.Center(
+                        child: pw.Text(
+                          IterableZip([
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString(),
+                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ],
+              )
+            );
+          }).values.toList(),
+        ),
+      ),
+
+      pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
                 pw.Column(
@@ -432,7 +555,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                                       pw.SizedBox(
                                         width: (h * 0.70707070) / 1.1,
                                         child: pw.Padding(
-                                          padding: pw.EdgeInsets.symmetric(horizontal: h / 20, vertical:h/500),
+                                          padding: pw.EdgeInsets.symmetric(horizontal: h / 15, vertical:h/500),
                                           child: pw.Row(
                                             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                                             children: [
@@ -444,7 +567,7 @@ void _generateAndDownloadPdf(Quotation_Model quotation,h,bool _download) async {
                                                 ),
                                               ),
                                               pw.Text(
-                                                '${quotation.total}', // Replace with actual total value
+                                                '${quotation.quotation.total}', // Replace with actual total value
                                                 style: pw.TextStyle(
                                                   fontWeight: pw.FontWeight.bold,
                                                   fontSize: h / 80,

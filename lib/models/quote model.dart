@@ -5,6 +5,7 @@ import 'cinet model.dart';
 import 'item model.dart';
 
 class Quotation_Model{
+
   String id;
   String dec;
   String status;
@@ -15,6 +16,7 @@ class Quotation_Model{
   List <Item_Model> items=[];
   bool is_original;
   String original_id;
+  List<int> ui;
 
 
   Quotation_Model(
@@ -28,7 +30,9 @@ class Quotation_Model{
         required this.items,
         this.status='Pending',
         required this.is_original,
-        required this.original_id
+        required this.original_id,
+        required this.ui,
+
       });
 
   Quotation_Model.fromjson(map):this(
@@ -42,6 +46,7 @@ class Quotation_Model{
     items: List<Item_Model>.from(map['items'].map((item) => Item_Model.fromjson(item))),
     is_original: map['is_original'],
     original_id: map['original_id'].toString(),
+    ui:  map['ui'].map((e) => int.parse(e.toString())).toList().cast<int>(),
   );
    tojson(){
      return {
@@ -53,6 +58,7 @@ class Quotation_Model{
        'account_manager_id':double.parse(account_manger_model.id).toInt(),
        'total':total,
        'is_original':is_original,
+
 
      };
   }
@@ -69,6 +75,7 @@ class New_Quotation_Model{
         required this.ui,
 
       });
+
 
 
 }

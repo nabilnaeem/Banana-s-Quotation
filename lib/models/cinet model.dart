@@ -23,28 +23,3 @@ class Client_Model{
   };
 
 }
-class User_Model{
-  String id;
-  String name;
-  bool admin;
-  String e_mail;
-
-
-
-  User_Model(
-      {required this.id,required this.name,required this.admin,required this.e_mail});
-  User_Model.fromJson(Map<String, dynamic> map):this(
-    id: map['id'] .toString() ,
-    name: map['name'] .toString(),
-    admin: map['admin'] ,
-    e_mail: map['email'] .toString(),
-  );
-  tojson() => {
-
-
-    'name':name,
-    'email':e_mail,
-
-  };
-
-}
