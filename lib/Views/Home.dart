@@ -27,20 +27,6 @@ class _HomeState extends State<Home> {
     double h=MediaQuery.of(context).size.height;
     return GetBuilder<Data_controller>(
       builder:(controller)=> Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: ()async{
-          try{
-            final data=  await supabase.from('quote').select('items(id)');
-            List old =data[0]['items'].map((item) => item['id']!).toList();
-            print(old);
-            List newlist =[94,95,'5'];
-            print(newlist);
-            List remove_list=old.where((element) => !newlist.contains(element)).toList();
-            print(remove_list);
-
-          }catch(e){
-            print(e);
-          }
-          },),
         body: Container(
           child: Column(
             children: [
