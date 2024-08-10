@@ -57,7 +57,7 @@ Widget Quotation_item(Quotation_Model quotation , h,Data_controller controller,L
                   children: [
                     Text("Date : ${(quotation.time.day)}/${(quotation.time.month)}/${(quotation.time.year)}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/65),),
                     SizedBox(height: h/40,),
-                    Text("Description : ${quotation.dec}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/65),),
+                    Text("Description : ${quotation.dec}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/70),),
 
                   ],
                 ),

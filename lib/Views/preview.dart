@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:html' as html; // For web-specific HTML functionality
 import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Controllers/widgets.dart';
+import 'package:banana/Views/Home.dart';
 import 'package:banana/Views/new%20quote.dart';
 import 'package:banana/Views/table.dart';
 import 'package:banana/models/account%20manger%20model.dart';
@@ -35,22 +36,26 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
 
 class QuotePdf extends StatefulWidget {
+
+  bool update;
   bool edit;
+
   List<New_Quotation_Model> quotation;
 
 
-  QuotePdf(this.edit, this.quotation);
+  QuotePdf(this.update, this.quotation,{this.edit=false});
 
   @override
-  _QuotePdfState createState() => _QuotePdfState(quotation,edit);
+  _QuotePdfState createState() => _QuotePdfState(quotation,update,edit);
 }
 
 class _QuotePdfState extends State<QuotePdf> {
   List<New_Quotation_Model> quotation;
+  bool update;
   bool edit;
 
 
-  _QuotePdfState(this.quotation, this.edit);
+  _QuotePdfState(this.quotation, this.update,this.edit);
 
   final pdf = pw.Document();
 
@@ -73,17 +78,9 @@ class _QuotePdfState extends State<QuotePdf> {
           backgroundColor: Colors.black,
           title: Text('Preview',style: TextStyle(color: Colors.white),),
 
-        ),
-        floatingActionButton:!edit? FloatingActionButton(
-          backgroundColor: Colors.black,
-          child:edit?Icon(Icons.edit,color: Colors.yellow,):Image.asset('images/logo.png'),
-          onPressed: (){
 
-                if(!edit){
-                  Add_quote(controller);
-                }else{
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0].quotation,true,controller,quotation[0].ui)));}
-          }):SizedBox(),
+        ),
+        floatingActionButton:floating_widget(controller),
         body: ListView.builder(
           itemCount: quotation.map((e) => e.quotation).length,
             itemBuilder: (_,i)=>Padding(
@@ -114,7 +111,7 @@ class _QuotePdfState extends State<QuotePdf> {
                           ),
                           child: Text('Original',style: TextStyle(fontSize:10,color: Colors.white,fontWeight: FontWeight.bold),)),
                     ):SizedBox(),
-                    edit? Positioned(
+                    update? Positioned(
                      right: 20,left: 20,
                       bottom: 20,
                       child: SizedBox(
@@ -124,7 +121,7 @@ class _QuotePdfState extends State<QuotePdf> {
                           children: [
                             InkWell(
                               onTap: (){
-                                _generateAndDownloadPdf(quotation[i], 620, true);
+                                generateAndDownloadPdf(quotation[i], 620, true);
                               },
                               child: Container(
                                   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -203,14 +200,9 @@ class _QuotePdfState extends State<QuotePdf> {
     }
     return color;
   }
-  requst(Data_controller controller){
-  if(controller.current_user.admin){
-    Add_quote(controller);
-  }else{
-    Add_requst(controller);
-  }
-  }
+
   Future Add_quote(Data_controller controller)async{
+  print('object');
     try{
       final id =
           await supabase.from('quote').upsert(quotation[0].quotation.tojson()).select();
@@ -223,31 +215,81 @@ class _QuotePdfState extends State<QuotePdf> {
           controller.Table_Items.map((e) => e.tojson(id[0]['id'])).toList());
       print('pass 4');
       quotation[0].quotation.id=id[0]['id'].toString();
-      await supabase.from('Requests').upsert(Request_model(id: 'id', comment: 'comment',
+      await supabase.from('quote_requ').upsert(quotation_Request_Model(id: 'id', comment: 'Please approve on this quote',
           approval: controller.current_user.admin,
-          client: Client_Model(id: '0', name: 'name', phone: 'phone', e_mail: 'e_mail'),
           user: controller.current_user, quotation: quotation[0].quotation).tojson_quote()).select();
       print('pass 5');
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
     }catch(e){
       print(e);
     }
-   // _generateAndDownloadPdf(quotation[0],620,true);
+   generateAndDownloadPdf(quotation[0],620,true);
 
 
   }
-  Future Add_requst(Data_controller controller)async{
+  Future edit_quote(Data_controller controller)async{
+    quotation[0].quotation.ui=quotation[0].ui;
+
     try{
-      // await Add_quote(controller);
+      final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('items(id)');
+      print(data);
+     List old =data[0]['items'].map((item) => item['id']!).toList();
+     print(old);
+     List newlist =quotation[0].quotation.items.map((e) => int.parse(e.id==''?'0':e.id)).toList();
+      print(newlist);
+      List remove_list=old.where((element) => !newlist.contains(element)).toList();
+      print(remove_list);
+      await supabase.from('quote').update(quotation[0].quotation.tojson()).eq('id', quotation[0].quotation.id).select();
+      print('1');
+     for(int i =0;i<quotation[0].quotation.items.length;i++){
+       print('2');
+        quotation[0].quotation.items[i].id==''?
 
+        await supabase.from('items').insert(quotation[0].quotation.items[i].tojson(quotation[0].quotation.id)).select():
+        await supabase.from('items').update(quotation[0].quotation.items[i].tojson(quotation[0].quotation.id)).eq('id', quotation[0].quotation.items[i].id).select();
+       print('3');
+        final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('quote_requ(id)');
+       print('4');
+       print(data);
+        await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
+       print('5');
+     }
+     for(int i =0;i<remove_list.length;i++){
+       print('6 -${i}');
+       await supabase.from('items').delete().eq('id', remove_list[i]).select();
+     }
 
-      print('pass 1');
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
     }catch(e){
       print(e);
     }
-   // _generateAndDownloadPdf(quotation[0],620,true);
+    generateAndDownloadPdf(quotation[0],620,true);
 
 
   }
+
+
+ Widget floating_widget(Data_controller controller) {
+  Widget widget=SizedBox();
+  if(edit || !update){
+    widget=FloatingActionButton(
+        backgroundColor: Colors.black,
+        child:Image.asset('images/logo.png'),
+        onPressed: (){
+
+          if(update){
+            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0].quotation,true,controller,quotation[0].quotation.ui)));
+          }else if(edit){
+           edit_quote(controller);
+          }else{
+            Add_quote(controller);
+          }
+        });
+  }
+  return widget;
+
+  }
+
 
 }
 
@@ -256,8 +298,9 @@ class _QuotePdfState extends State<QuotePdf> {
 
 
 
-void _generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) async {
+void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) async {
   int sum = 0;
+  h=620;
   final pdf = pw.Document();
   final imageProvider = pw.MemoryImage(
     (await rootBundle.load('images/logo2.png')).buffer.asUint8List(),

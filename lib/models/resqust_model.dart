@@ -3,34 +3,31 @@ import 'package:banana/models/user_model.dart';
 
 import 'cinet model.dart';
 
-class Request_model{
+class quotation_Request_Model{
 
   String id;
   String comment;
   bool approval;
-  Client_Model? client;
-   User_model? user;
-  Quotation_Model? quotation;
+   User_model user;
+  Quotation_Model quotation;
 
 
 
-  Request_model(
+  quotation_Request_Model(
       {
         required this.id,
         required this.comment,
         required this.approval,
-        required this.client,
         required this.user,
         required this.quotation,
 
 
       });
 
-  Request_model.fromjson(map):this(
+  quotation_Request_Model.fromjson(map):this(
     id: map['id'].toString(),
     comment: map['comment'],
-    approval: map['Approval'],
-    client:Client_Model.fromJson(map['Client']),
+    approval: map['approval'],
     user: User_model.fromjson(map['users']),
     quotation: Quotation_Model.fromjson(map['quote']),
 
@@ -41,26 +38,117 @@ class Request_model{
     return {
 
       'comment':comment,
-      'Approval':approval,
+      'approval':approval,
+      'user':user.id,
 
-      'quote':quotation!.id,
+      'quote':quotation.id,
 
 
 
     };
   }
-  tojson_client(){
+
+
+
+}
+class Clint_Request_Model{
+
+  String id;
+  String comment;
+  bool approval;
+  Client_Model client;
+   User_model user;
+
+
+
+
+  Clint_Request_Model(
+      {
+        required this.id,
+        required this.comment,
+        required this.approval,
+        required this.client,
+        required this.user,
+
+
+
+      });
+
+  Clint_Request_Model.fromjson(map):this(
+    id: map['id'].toString(),
+    comment: map['comment'],
+    approval: map['approval'],
+    client:Client_Model.fromJson(map['Client']),
+    user: User_model.fromjson(map['users']),
+
+
+  );
+
+
+  tojson_quote(){
     return {
 
       'comment':comment,
-      'Approval':approval,
+      'approval':approval,
+      'user':user.id,
 
-      'client':client!.id,
+      'client':client.id,
 
 
 
     };
   }
+
+
+}
+class Status_Request_model{
+
+  String id;
+  String comment;
+  String status;
+  bool approval;
+  User_model user;
+  Quotation_Model quotation;
+
+
+
+  Status_Request_model(
+      {
+        required this.id,
+        required this.comment,
+        required this.status,
+        required this.approval,
+        required this.user,
+        required this.quotation,
+
+
+      });
+
+  Status_Request_model.fromjson(map):this(
+    id: map['id'].toString(),
+    comment: map['comment'],
+    status: map['status'],
+    approval: map['approval'],
+    user: User_model.fromjson(map['users']),
+    quotation: Quotation_Model.fromjson(map['quote']),
+
+  );
+
+
+  tojson_quote(){
+    return {
+
+      'comment':comment,
+      'status':status,
+      'approval':approval,
+      'user':user.id,
+      'quote':quotation.id,
+
+
+
+    };
+  }
+
 
 
 }

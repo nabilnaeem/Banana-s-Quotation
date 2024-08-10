@@ -17,18 +17,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class New_Quote extends StatefulWidget {
 Quotation_Model quotation;
+bool update;
 bool edit;
+
 Data_controller data;
 List <int> ui;
 
 
-New_Quote(this.quotation, this.edit,this.data,this.ui);
+New_Quote(this.quotation, this.update,this.data,this.ui,{this.edit=false});
 
   @override
-  State<New_Quote> createState() => _New_QuoteState(quotation,edit,data,ui);
+  State<New_Quote> createState() => _New_QuoteState(quotation,update,data,ui,edit);
 }
 
 class _New_QuoteState extends State<New_Quote> {
+  bool edit;
   List <int> ui;
   TextEditingController dec=TextEditingController();
   TextEditingController name=TextEditingController();
@@ -45,14 +48,19 @@ class _New_QuoteState extends State<New_Quote> {
 List <Item_Model> items=[];
   Quotation_Model quotation;
   Data_controller data;
-  bool edit;
+  bool update;
   double total=0.0;
-  _New_QuoteState(this.quotation, this.edit,this.data,this.ui);
+  _New_QuoteState(this.quotation, this.update,this.data,this.ui,this.edit);
 
   @override
   void initState() {
     // TODO: implement initState
-  edit?edit_quote():new_quote();
+    if(update || edit){
+      edit_quote();
+    }else{
+      new_quote();
+    }
+
 
   }
   new_quote(){
@@ -93,12 +101,12 @@ List <Item_Model> items=[];
     return GetBuilder<Data_controller>(
 
       builder:(controller)=> Scaffold(
-        floatingActionButton: InkWell(
+        floatingActionButton:  controller.Table_Items.length==0?SizedBox(): InkWell(
           onTap: (){
             Quotation_Model quotaion_model=Quotation_Model(
               ui: ui,
-              is_original: !edit,
-                original_id: edit?quotation.is_original?quotation.id:quotation.original_id:'',
+              is_original: !update,
+                original_id: update?quotation.is_original?quotation.id:quotation.original_id:'',
                 id: quotation.id,
                 dec: dec.text,
                 client_model: client,
@@ -107,7 +115,7 @@ List <Item_Model> items=[];
                 total: controller.total_quote_in_reivew,
                 items: controller.Table_Items);
 
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[New_Quotation_Model(quotation: quotaion_model, ui: controller.UI)])));
+          Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[New_Quotation_Model(quotation: quotaion_model, ui: controller.UI)],edit: edit,)));
            },
           child: Container(
             padding: EdgeInsets.all(5),
@@ -518,7 +526,7 @@ List <Item_Model> items=[];
                     SizedBox(
                       width: w,
                         height: h/2,
-                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: ui),controller,h,edit: true,)),
+                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: quotation.ui),controller,h,edit: true,)),
                   ],
                 ),
                 Divider(),

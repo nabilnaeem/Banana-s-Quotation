@@ -17,7 +17,7 @@ class Data_controller extends GetxController{
   List <Account_manger_Model> Account_manger=[];
   List <Quotation_Model> Quotations=[];
   List <User_model> Users=[];
-  List <Request_model> Request=[];
+  List <quotation_Request_Model> quote_Request=[];
   User_model current_user=User_model(id: 'id', name: 'name', admin: false, email: 'e_mail');
 
   Data_controller(){
@@ -54,19 +54,22 @@ update();
 
   get_quotes()async{
     Quotations=[];
-    final response=await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(item,price,quantity)');
+  try  {
+      final response =
+      await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval)');
 
-    final List<dynamic> data = response as List<dynamic>;
+      final List<dynamic> data = response as List<dynamic>;
 
+      for (int i = 0; i < data.length; i++) {
+        Quotations.add(Quotation_Model.fromjson(data[i]));
 
-    for(int i =0;i<data.length;i++){
-      Quotations.add(Quotation_Model.fromjson(data[i]));
-
+        update();
+      }
       update();
-    }
-    update();
-    print("Quotations => "+Quotations.length.toString());
-
+      print("Quotations => " + Quotations.length.toString());
+    }catch(e){
+    print(e);
+  }
   }
   get_users()async{
 
@@ -84,23 +87,31 @@ update();
 
   }
   get_current()async{
-    var supa= await supabase.auth.currentSession;
-    print(supa!.user.email);
-    if(supa.user.email!.isNotEmpty){
-      current_user=Users[Users.indexWhere((element) => element.email==supa.user.email)];
-      print(current_user.tojson());
-    }else{
-      print('object');
-    }
-    get_requ();
-  }
-  get_requ()async{
-    Request=[];
     try{
-      final response = await supabase.from('Requests').select('id,comment,Approval,users(id,name,email,admin),Client(client_id,name,email,phone),quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(item,price,quantity))');
+      var supa = await supabase.auth.currentSession;
+      print('pass 1');
+      print(supa!.user.email);
+      print('pass 1');
+      if (supa.user.email!.isNotEmpty) {
+        current_user = Users[
+            Users.indexWhere((element) => element.email == supa.user.email)];
+        print('pass 1');
+        print(current_user.tojson());
+      } else {
+        print('object');
+      }
+    }catch(e){
+      print(e);
+    }
+    quote_requ();
+  }
+  quote_requ()async{
+    quote_Request=[];
+    try{
+      final response = await supabase.from('quote_requ').select('id,comment,approval,users(id,name,email,admin),quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))').eq('approval', false);
       final List<dynamic> data = response as List<dynamic>;
       for(int i =0;i<data.length;i++){
-        Request.add(Request_model.fromjson(data[i]));
+        quote_Request.add(quotation_Request_Model.fromjson(data[i]));
         update();
       }
 
@@ -112,7 +123,7 @@ update();
 
 
     update();
-    print("Requests => "+Request.length.toString());
+    print("quote Requests => "+quote_Request.length.toString());
 
   }
   get_total_quote(List price,List quantity,bool Update){

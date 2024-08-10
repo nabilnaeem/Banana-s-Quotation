@@ -1,15 +1,17 @@
 class Item_Model{
 
   String item;
+  String id;
   double quantity;
   double price;
 
 
 
   Item_Model(
-      {required this.item,required this.quantity,required this.price});
+      {required this.item,required this.quantity,required this.price,required this.id});
   Item_Model.fromjson(map):this(
       item: map['item'],
+      id: map['id'].toString(),
       quantity: double.parse(map['quantity']),
       price: double.parse(map['price']),
   );

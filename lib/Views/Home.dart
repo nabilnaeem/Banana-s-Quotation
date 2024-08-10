@@ -2,6 +2,8 @@ import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Views/Login.dart';
 import 'package:banana/Views/View%20quots.dart';
 import 'package:banana/Views/history.dart';
+import 'package:banana/Views/requests/requests.dart';
+
 import 'package:banana/models/account%20manger%20model.dart';
 import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/item%20model.dart';
@@ -25,6 +27,20 @@ class _HomeState extends State<Home> {
     double h=MediaQuery.of(context).size.height;
     return GetBuilder<Data_controller>(
       builder:(controller)=> Scaffold(
+        floatingActionButton: FloatingActionButton(onPressed: ()async{
+          try{
+            final data=  await supabase.from('quote').select('items(id)');
+            List old =data[0]['items'].map((item) => item['id']!).toList();
+            print(old);
+            List newlist =[94,95,'5'];
+            print(newlist);
+            List remove_list=old.where((element) => !newlist.contains(element)).toList();
+            print(remove_list);
+
+          }catch(e){
+            print(e);
+          }
+          },),
         body: Container(
           child: Column(
             children: [
@@ -54,7 +70,7 @@ class _HomeState extends State<Home> {
                     ui: [1],
                     is_original: true,original_id: '',
                         id: 'iid', dec: 'dec', client_model: Client_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), time: DateTime.now(), account_manger_model: Account_manger_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), total: 0, items: [
-                          Item_Model(item: '', quantity: 0, price: 0),
+                          Item_Model(item: '', quantity: 0, price: 0,id: ''),
 
                   ]),false,controller,[1])));
                 },
@@ -80,7 +96,7 @@ class _HomeState extends State<Home> {
               controller.current_user.admin?  Divider():SizedBox(),
              controller.current_user.admin? ListTile(
                 onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>View_Quotations(controller.Quotations.where((element) => element.status=='Active').toList(),'Active Quotations')));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>Requests()));
 
                 },
                 title: Text('Requests'),trailing: Icon(Icons.arrow_forward_ios_rounded),):SizedBox(),

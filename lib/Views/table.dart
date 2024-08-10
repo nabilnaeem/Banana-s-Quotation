@@ -54,7 +54,7 @@ quantity_ui=List.generate(sum, (index) => TextEditingController());
 price_ui=List.generate(sum, (index) => TextEditingController());
 total_ui=List.generate(ui.length, (index) => TextEditingController());
 
-items=quotation.quotation.items.isEmpty?[Item_Model(item: '', quantity: 1, price: 1)]:quotation.quotation.items;
+items=quotation.quotation.items.isEmpty?[Item_Model(item: '', quantity: 1, price: 1,id: '')]:quotation.quotation.items;
 print(ui);
 print(items.length);
 for (int i=0; i< items.length;i++){
@@ -145,7 +145,6 @@ int ui_index=0;
            children: preview?[
         text_custum('Item',header: true),
         text_custum('Quantity'),
-
         text_custum('Total'),
 
       ]:[
@@ -165,38 +164,43 @@ int ui_index=0;
                 ),
                 children: List.generate(e.length, (index) => TableRow(
 
-                children:[ Center(child: Stack(
-              children: [
-               edit? TextFormField(
-                  textAlign: TextAlign.center,
-                  onChanged: (e){
-                    update_total(controller);
-                    setState(() {
+                    children:[ Center(child: Stack(
+                      children: [
+                        edit? TextFormField(
+                          textAlign: TextAlign.center,
+                          onChanged: (i){
+                            e[index].item=items_ui[index+sum].text;
+                            update_total(controller);
 
-                    });
-                  },
-                  controller: items_ui[index+sum],):text_custum(items_ui[index+sum].text),
-                edit?   theme_pop_up(index+sum):SizedBox(),
 
-              ],
-            ))]),)),
+                            setState(() {
+
+                            });
+                          },
+                          controller: items_ui[index+sum],):
+                        text_custum(items_ui[index+sum].text),
+                        edit?   theme_pop_up(index+sum):SizedBox(),
+
+                      ],
+                    ))]),)),
             Table(
                 border: TableBorder.symmetric(
                     inside: BorderSide(width: h/2000, color: Colors.black),
                     outside: BorderSide(width: h/2000, color: Colors.black)
                 ),
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
-          edit?  TextFormField(
-              textAlign: TextAlign.center,
-              onChanged: (e){
-                update_total(controller);
-                setState(() {
+                edit?  TextFormField(
+                  textAlign: TextAlign.center,
+                  onChanged: (i){
+                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
+                    update_total(controller);
+                    setState(() {
 
-                });
-              },
-              controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
-            )
-            ]),)),
+                    });
+                  },
+                  controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
+                )
+                ]),)),
             Center(child: text_custum(sum_total.toString())),
           ]:[
             Table(
@@ -210,13 +214,17 @@ int ui_index=0;
                       children: [
                         edit? TextFormField(
                           textAlign: TextAlign.center,
-                          onChanged: (e){
+                          onChanged: (i){
+                            e[index].item=items_ui[index+sum].text;
                             update_total(controller);
+
+
                             setState(() {
 
                             });
                           },
-                          controller: items_ui[index+sum],):text_custum(items_ui[index+sum].text),
+                          controller: items_ui[index+sum],):
+                        text_custum(items_ui[index+sum].text),
                         edit?   theme_pop_up(index+sum):SizedBox(),
 
                       ],
@@ -229,7 +237,8 @@ int ui_index=0;
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
                   textAlign: TextAlign.center,
-                  onChanged: (e){
+                  onChanged: (i){
+                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
 
@@ -246,7 +255,8 @@ int ui_index=0;
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit? TextFormField(
                   textAlign: TextAlign.center,
-                  onChanged: (e){
+                  onChanged: (w){
+                    e[index].price=double.parse(price_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
 
@@ -302,7 +312,8 @@ int ui_index=0;
           SizedBox(),
         ]
        ),
-          TableRow(children:preview? [
+          TableRow(children:
+          preview?[
             Table(
                 border: TableBorder.symmetric(
                     inside: BorderSide(width: h/2000, color: Colors.black),
@@ -314,13 +325,17 @@ int ui_index=0;
                       children: [
                         edit? TextFormField(
                           textAlign: TextAlign.center,
-                          onChanged: (e){
+                          onChanged: (i){
+                            e[index].item=items_ui[index+sum].text;
                             update_total(controller);
+
+
                             setState(() {
 
                             });
                           },
-                          controller: items_ui[index+sum],):text_custum(items_ui[index+sum].text),
+                          controller: items_ui[index+sum],):
+                        text_custum(items_ui[index+sum].text),
                         edit?   theme_pop_up(index+sum):SizedBox(),
 
                       ],
@@ -333,7 +348,8 @@ int ui_index=0;
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
                   textAlign: TextAlign.center,
-                  onChanged: (e){
+                  onChanged: (i){
+                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
 
@@ -342,9 +358,8 @@ int ui_index=0;
                   controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
                 )
                 ]),)),
-
             Center(child: text_custum(sum_total.toString())),
-          ]: [
+          ]:[
             Table(
                 border: TableBorder.symmetric(
                     inside: BorderSide(width: h/2000, color: Colors.black),
@@ -356,13 +371,17 @@ int ui_index=0;
                       children: [
                         edit? TextFormField(
                           textAlign: TextAlign.center,
-                          onChanged: (e){
+                          onChanged: (i){
+                            e[index].item=items_ui[index+sum].text;
                             update_total(controller);
+
+
                             setState(() {
 
                             });
                           },
-                          controller: items_ui[index+sum],):text_custum(items_ui[index+sum].text),
+                          controller: items_ui[index+sum],):
+                        text_custum(items_ui[index+sum].text),
                         edit?   theme_pop_up(index+sum):SizedBox(),
 
                       ],
@@ -375,7 +394,8 @@ int ui_index=0;
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
                   textAlign: TextAlign.center,
-                  onChanged: (e){
+                  onChanged: (i){
+                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
 
@@ -392,7 +412,8 @@ int ui_index=0;
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit? TextFormField(
                   textAlign: TextAlign.center,
-                  onChanged: (e){
+                  onChanged: (w){
+                    e[index].price=double.parse(price_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
 
@@ -402,6 +423,7 @@ int ui_index=0;
                 )]),)),
             Center(child: text_custum(sum_total.toString())),
           ]
+
           ),
     ]);
   }
@@ -441,7 +463,7 @@ on_above(int index){
   }
 
   setState(() {
-    items.insert(index, Item_Model(item: '', quantity: 0, price: 0));
+    items.insert(index, Item_Model(id:'',item: '', quantity: 0, price: 0));
     items_ui.insert(index, TextEditingController());
     quantity_ui.insert(index, TextEditingController());
     price_ui.insert(index, TextEditingController());
@@ -466,7 +488,7 @@ on_below(int index){
   }
 
   setState(() {
-    items.insert(index+1, Item_Model(item: '', quantity: 0, price: 0));
+    items.insert(index+1, Item_Model(item: '', quantity: 0, price: 0,id: ''));
     items_ui.insert(index+1, TextEditingController());
     quantity_ui.insert(index+1, TextEditingController());
     price_ui.insert(index+1, TextEditingController());
@@ -498,7 +520,7 @@ on_delete(int index){
 add_new_row(){
     setState(() {
       ui.add(1);
-      items.add(Item_Model(item: 'item', quantity: 0, price: 0));
+      items.add(Item_Model(item: 'item', quantity: 0, price: 0,id: ''));
       items_ui.add(TextEditingController());
       quantity_ui.add(TextEditingController());
       price_ui.add(TextEditingController());
@@ -508,6 +530,7 @@ add_new_row(){
     update_total(controller);
 }
 update_total(Data_controller controller){
+
 
    if(price_ui.isNotEmpty || quantity_ui.isNotEmpty){
      controller.get_total_quote(price_ui.map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(),quantity_ui.map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(),true);
@@ -519,7 +542,7 @@ update_total(Data_controller controller){
 
 
 controller.update_table_ui(ui);
-controller.update_table_items(List.generate(items.length, (index) => Item_Model(item: items_ui[index].text, quantity:  double.parse(quantity_ui[index].text) ,price: double.parse(price_ui[index].text))).toList());
+controller.update_table_items(items);
   }
 Widget text_custum(String text,{bool header=false}){
     return   Center(child: Padding(

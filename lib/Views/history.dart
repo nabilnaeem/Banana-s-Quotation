@@ -36,12 +36,17 @@ class _HistoryState extends State<History> {
   @override
   void initState() {
     // TODO: implement initState
-   Quotations= Quotations..sort((a, b) => b.time.compareTo(a.time));
+
+if(Quotations.length!=0){
+  init();
+}
+
+
+  }
+  init(){
+    Quotations= Quotations..sort((a, b) => b.time.compareTo(a.time));
     selectedDate_from=Quotations.last.time;
     selectedDate_to=Quotations.first.time;
-
-
-
   }
   List radioo=['All','Active','Pending','Cancelled'];
   int radio=0;
@@ -69,7 +74,7 @@ class _HistoryState extends State<History> {
                 child: Image(image: AssetImage('images/logo.png')))
           ],
         ),
-        body: SingleChildScrollView(
+        body: Quotations.length!=0?SingleChildScrollView(
           child: Column(
             children: [
               Padding(
@@ -419,7 +424,7 @@ class _HistoryState extends State<History> {
               ),
             ],
           ),
-        ),
+        ):Center(child: Text('Empty'),),
 
       ),
     );
@@ -432,7 +437,7 @@ List <Quotation_Model> get_quotes_updates(Quotation_Model item){
     return updates;
 }
   List<Quotation_Model> filterEvents() {
-    List<Quotation_Model> events=Quotations.toList().where((element) => element.is_original==true ).toList();
+    List<Quotation_Model> events=Quotations.toList().where((element) =>  element.approval==true).toList();
     DateTime startDate =selectedDate_from;
     DateTime endDate =selectedDate_to;
     String searchTerm=search_input.text;

@@ -17,6 +17,7 @@ class Quotation_Model{
   bool is_original;
   String original_id;
   List<int> ui;
+  bool approval;
 
 
   Quotation_Model(
@@ -32,6 +33,7 @@ class Quotation_Model{
         required this.is_original,
         required this.original_id,
         required this.ui,
+        this.approval=false
 
       });
 
@@ -47,6 +49,7 @@ class Quotation_Model{
     is_original: map['is_original'],
     original_id: map['original_id'].toString(),
     ui:  map['ui'].map((e) => int.parse(e.toString())).toList().cast<int>(),
+    approval:map['quote_requ'][0].values.first
   );
    tojson(){
      return {
@@ -58,6 +61,7 @@ class Quotation_Model{
        'account_manager_id':double.parse(account_manger_model.id).toInt(),
        'total':total,
        'is_original':is_original,
+       'ui':ui
 
 
      };
