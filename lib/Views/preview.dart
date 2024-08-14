@@ -501,10 +501,9 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                   outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                 ),
                 columnWidths: {
-                  0: pw.FlexColumnWidth(5),
+                  0: pw.FlexColumnWidth(6),
                   1: pw.FlexColumnWidth(4),
-                  2: pw.FlexColumnWidth(4),
-                  3: pw.FlexColumnWidth(4),
+                  2: pw.FlexColumnWidth(4)
                 },
                 defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
                 children: [
@@ -512,7 +511,6 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                     children: [
                       pw.SizedBox(),
                       pw.SizedBox(),
-
                       pw.SizedBox(),
                     ],
                   ),
