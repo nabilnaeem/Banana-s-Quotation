@@ -18,7 +18,18 @@ class _Quote_requState extends State<Quote_requ> {
   Widget build(BuildContext context) {
     return GetBuilder<Data_controller>(
       builder:(controller)=> Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          foregroundColor: Colors.black87,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+
+          centerTitle: true,
+          actions: [
+            Hero(
+                tag: 'logo',
+                child: Image(image: AssetImage('images/logo.png')))
+          ],
+        ),
         body: Column(
           children:controller.quote_Request.map((e) => ListTile(
             onTap: (){

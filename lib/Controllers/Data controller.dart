@@ -14,6 +14,7 @@ class Data_controller extends GetxController{
   List <Item_Model> Table_Items=[];
   final supabase=Supabase.instance.client;
   List <Client_Model> Clints=[];
+  List <Client_Model2> Clints2=[];
   List <Account_manger_Model> Account_manger=[];
   List <Quotation_Model> Quotations=[];
   List <User_model> Users=[];
@@ -22,6 +23,7 @@ class Data_controller extends GetxController{
 
   Data_controller(){
 get_clints();
+get_clints_related();
 get_account_mangers();
 get_quotes();
 get_users();
@@ -29,15 +31,37 @@ update();
   }
   get_clints()async{
     Clints=[];
-    final response=await supabase.from('Client').select('client_id,name,email,phone');
-    final List<dynamic> data = response as List<dynamic>;
-   for(int i =0;i<data.length;i++){
-     Clints.add(Client_Model.fromJson(data[i]));
-     update();
+   try {
+      final response = await supabase.from('Client').select(
+          'client_id,name,email,phone');
+      final List<dynamic> data = response as List<dynamic>;
+
+      for (int i = 0; i < data.length; i++) {
+        Clints.add(Client_Model.fromJson(data[i]));
+        update();
+      }
+
+      print("Clients => " + Clints.length.toString());
+    }catch(e){
+     print(e);
    }
+  }
+  get_clints_related()async{
+    Clints2=[];
+   try {
+      final response = await supabase.from('Client').select(
+          'client_id,name,email,phone,quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
+      final List<dynamic> data = response as List<dynamic>;
 
-    print("Clients => "+Clints.length.toString());
+      for (int i = 0; i < data.length; i++) {
+        Clints2.add(Client_Model2.fromJson(data[i]));
+        update();
+      }
 
+      print("Clients2 => " + Clints2.length.toString());
+    }catch(e){
+     print(e);
+   }
   }
   get_account_mangers()async{
     Account_manger=[];

@@ -31,6 +31,11 @@ class _View_QuotationsState extends State<View_Quotations> {
   @override
   void initState() {
     // TODO: implement initState
+    if(Quotations.length!=0){
+      init();
+    }
+  }
+  init(){
     selectedDate_from=Quotations.first.time;
     selectedDate_to=Quotations.last.time;
     Quotations=Quotations..sort((a, b) => a.time.compareTo(b.time));
@@ -267,7 +272,7 @@ class _View_QuotationsState extends State<View_Quotations> {
     return updates;
   }
   List<Quotation_Model> filterEvents() {
-    List<Quotation_Model> events=Quotations;
+    List<Quotation_Model> events=Quotations.toList().where((element) =>  element.approval==true).toList();
     DateTime startDate =selectedDate_from;
     DateTime endDate =selectedDate_to;
 

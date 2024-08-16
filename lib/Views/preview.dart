@@ -59,7 +59,7 @@ class _QuotePdfState extends State<QuotePdf> {
 
   final pdf = pw.Document();
 
-
+bool loding=false;
   final supabase=Supabase.instance.client;
 @override
   void initState() {
@@ -81,112 +81,137 @@ class _QuotePdfState extends State<QuotePdf> {
 
         ),
         floatingActionButton:floating_widget(controller),
-        body: ListView.builder(
-          itemCount: quotation.map((e) => e.quotation).length,
-            itemBuilder: (_,i)=>Padding(
-              padding: const EdgeInsets.only(bottom: 15),
-              child: Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        boxShadow: [ BoxShadow(
-                            blurRadius: 15,
-                            color: Colors.grey.shade500
-                        )]
-                      ),
-
-
-                      child:Quotation_item(quotation[i].quotation, h, controller, quotation[i].ui),
-                    ),
-                    quotation[i].quotation.is_original?  Positioned(
-
-                      top: 10,right: 10,
-                      child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                          decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(100)
-                          ),
-                          child: Text('Original',style: TextStyle(fontSize:10,color: Colors.white,fontWeight: FontWeight.bold),)),
-                    ):SizedBox(),
-                    update? Positioned(
-                     right: 20,left: 20,
-                      bottom: 20,
-                      child: SizedBox(
-                        width:h*0.70707070 ,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            InkWell(
-                              onTap: (){
-                                generateAndDownloadPdf(quotation[i], 620, true);
-                              },
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black87,
-                                      borderRadius: BorderRadius.circular(100)
-                                  ),
-                                  child: Text('View & Download',style: TextStyle(fontSize:12,color: Colors.blue,fontWeight: FontWeight.bold),)),
-                            ),
-
-                            InkWell(
-                              onTap: (){
-                               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i].quotation,true,controller,[1])));},
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black87,
-                                      borderRadius: BorderRadius.circular(100)
-                                  ),
-                                  child: Text('Update',style: TextStyle(fontSize:12,color: Colors.orange,fontWeight: FontWeight.bold),)),
-                            ),
-                            InkWell(
-                              onTap: (){
-                                List status=['Active','Pending','Cancelled'];
-                                pop_up_dialog('', 'Choose', context, true,child: Container(
-                                  color: Colors.white,
-                                  child: Column(
-                                  children: status.map((e) => e==quotation[i].quotation.status?SizedBox():ListTile(title: Text(e),onTap: ()async{
-                                    if(controller.current_user!=null){
-                                      if(controller.current_user?.admin==true){
-                                        Navigator.pop(context);
-                                        pop_up_dialog('Status Changed', 'Done', context, false);
-                                      }else {
-                                       // await send_req(i,e);
-                                        Navigator.pop(context);
-                                        pop_up_dialog('Waiting for Finance Approval', 'Done', context, false);
-                                      }
-                                    }
-
-
-                                  },)).toList(),
-                                ),));
-
-                              },
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black87,
-                                      borderRadius: BorderRadius.circular(100)
-                                  ),
-                                  child: Text('Change Status',style: TextStyle(fontSize:12,color: Colors.green,fontWeight: FontWeight.bold),)),
-                            ),
-                          ],
+        body: Stack(
+          children: [
+            ListView.builder(
+              itemCount: quotation.map((e) => e.quotation).length,
+              itemBuilder: (_,i)=>Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: Center(
+                  child: Stack(
+                    children: [
+                      Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                            boxShadow: [ BoxShadow(
+                                blurRadius: 15,
+                                color: Colors.grey.shade500
+                            )]
                         ),
-                      ),
-                    ):SizedBox(),
 
-                  ],
+
+                        child:Quotation_item(quotation[i].quotation, h, controller, quotation[i].ui),
+                      ),
+                      quotation[i].quotation.is_original?  Positioned(
+
+                        top: 10,right: 10,
+                        child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                            decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(100)
+                            ),
+                            child: Text('Original',style: TextStyle(fontSize:10,color: Colors.white,fontWeight: FontWeight.bold),)),
+                      ):SizedBox(),
+                      update? Positioned(
+                        left: 20,
+                        top: 20,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black87,
+                            child: theme_pop_up(i, controller)),
+                      ):SizedBox(),
+                      update? Positioned(
+                        right: 20,
+                        bottom: 20,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                         
+                          padding: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+
+                          child: Text(quotation[i].quotation.status,style: TextStyle(color: get_color(quotation[i].quotation.status)),),
+                        ),
+                      ):SizedBox(),
+
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-      ),
+            ),
+            loding?loading(h,w):SizedBox(),
+
+          ],
+        ),
     ));
   }
+  Widget theme_pop_up(int index,Data_controller controller){
+    List items1=['Copy & Update','Download','Active','Cancel'];
+    List items2=['Copy & Update','Download'];
+    List items=controller.current_user.admin?items1:items2;
+    return PopupMenuButton(
+        position: PopupMenuPosition.under,
+        icon: Icon(Icons.more_vert_sharp,color: Colors.white,),
+        onSelected: (e){
+
+          switch(e){
+            case 'Copy & Update':on_update(index, controller);
+            break;
+            case 'Download':on_download(index);
+            break;
+            case 'Active':on_change_status('Active',controller,index);
+            break;
+            case 'Cancel':on_change_status('Cancelled',controller,index);
+
+          }
+        },
+        itemBuilder: (BuildContext bc) {
+          return items.map((e) =>  PopupMenuItem(
+            child: Center(child: Text(e)),
+            value: e,
+          ),).toList();
+        });
+
+  }
+  on_update(i,controller){
+    Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i].quotation,true,controller,[1])));
+}
+on_download(i){
+  generateAndDownloadPdf(quotation[i], 620, true);
+
+}
+on_change_status(String status,controller,i)async{
+
+  try{
+    setState(() {
+      loding=true;
+    });
+
+    await supabase.from('status_requ').upsert(Status_Request_model(id: 'id', comment: 'Please change this status to ${status}',
+        approval: controller.current_user.admin,
+        user: controller.current_user, quotation: quotation[0].quotation, status: status).tojson_quote()).select();
+    print('pass 1');
+    await supabase.from('quote').update({'status':status}).eq('id', quotation[i].quotation.id).select();
+    print('pass 2');
+    setState(() {
+      loding=false;
+    });
+
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+    controller.current_user.admin?pop_up_dialog('Changed', 'Done', context, false):pop_up_dialog('Waiting for finance approval..', 'Done', context, false);
+
+  }catch(e){
+    print(e);
+    setState(() {
+      loding=false;
+    });
+  }
+  generateAndDownloadPdf(quotation[0],620,true);
+
+
+}
 
   Color get_color(String status){
     Color color=Colors.black87;
@@ -204,6 +229,9 @@ class _QuotePdfState extends State<QuotePdf> {
   Future Add_quote(Data_controller controller)async{
   print('object');
     try{
+      setState(() {
+        loding=true;
+      });
       final id =
           await supabase.from('quote').upsert(quotation[0].quotation.tojson()).select();
       print('pass 1');
@@ -219,9 +247,18 @@ class _QuotePdfState extends State<QuotePdf> {
           approval: controller.current_user.admin,
           user: controller.current_user, quotation: quotation[0].quotation).tojson_quote()).select();
       print('pass 5');
+      setState(() {
+        loding=false;
+      });
+
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+      pop_up_dialog('Waiting for finance approval..', 'Done', context, false);
+
     }catch(e){
       print(e);
+      setState(() {
+        loding=false;
+      });
     }
    generateAndDownloadPdf(quotation[0],620,true);
 
@@ -231,6 +268,9 @@ class _QuotePdfState extends State<QuotePdf> {
     quotation[0].quotation.ui=quotation[0].ui;
 
     try{
+      setState(() {
+        loding=true;
+      });
       final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('items(id)');
       print(data);
      List old =data[0]['items'].map((item) => item['id']!).toList();
@@ -258,16 +298,22 @@ class _QuotePdfState extends State<QuotePdf> {
        print('6 -${i}');
        await supabase.from('items').delete().eq('id', remove_list[i]).select();
      }
-
+      setState(() {
+        loding=false;
+      });
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+      pop_up_dialog('Waiting for finance approval..', 'Done', context, false);
+
     }catch(e){
       print(e);
+      setState(() {
+        loding=false;
+      });
     }
     generateAndDownloadPdf(quotation[0],620,true);
 
 
   }
-
 
  Widget floating_widget(Data_controller controller) {
   Widget widget=SizedBox();
@@ -290,7 +336,17 @@ class _QuotePdfState extends State<QuotePdf> {
 
   }
 
+Widget loading(h,w){
+  return Container(
+    color: Colors.grey.shade100.withOpacity(0.5),
+    height: h+100,width: w,
+    padding: EdgeInsets.symmetric(horizontal: (w/2)-100,vertical:(w/2)-100 ),
 
+    child: Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+}
 }
 
 

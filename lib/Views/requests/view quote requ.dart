@@ -32,8 +32,18 @@ class _View_quote_requState extends State<View_quote_requ> {
     return GetBuilder<Data_controller>(
       builder:(controller)=> Scaffold(
         appBar: AppBar(
+          foregroundColor: Colors.black87,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           title: Text(quotation.comment),
+          centerTitle: true,
+          actions: [
+            Hero(
+                tag: 'logo',
+                child: Image(image: AssetImage('images/logo.png')))
+          ],
         ),
+
         body: SingleChildScrollView(
           child: Column(
             children: [

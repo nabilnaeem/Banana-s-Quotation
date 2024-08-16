@@ -1,6 +1,7 @@
 import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Views/Login.dart';
 import 'package:banana/Views/View%20quots.dart';
+import 'package:banana/Views/clients/clients.dart';
 import 'package:banana/Views/history.dart';
 import 'package:banana/Views/requests/requests.dart';
 
@@ -67,18 +68,23 @@ class _HomeState extends State<Home> {
               Divider(),
               ListTile(
                 onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>View_Quotations(controller.Quotations.where((element) => element.status=='Cancelled').toList(),'Cancelled Quotations')));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>History(controller.Quotations.where((element) => element.status=='Cancelled').toList())));
                 },
                 title: Text('Cancelled Quotation'),trailing: Icon(Icons.arrow_forward_ios_rounded),),
               Divider(),
               ListTile(
                 onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>View_Quotations(controller.Quotations.where((element) => element.status=='Active').toList(),'Active Quotations')));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>History(controller.Quotations.where((element) => element.status=='Active').toList())));
 
                 },
                 title: Text('Approved Quotation'),trailing: Icon(Icons.arrow_forward_ios_rounded),),
               Divider(),
-              ListTile(title: Text('Clinets'),),
+              ListTile(title: Text('Clinets'), onTap: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (c)=>Clients()));
+
+
+              },
+              trailing: Icon(Icons.arrow_forward_ios_rounded),),
               controller.current_user.admin?  Divider():SizedBox(),
              controller.current_user.admin? ListTile(
                 onTap: (){

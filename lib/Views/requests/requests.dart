@@ -12,7 +12,18 @@ class _RequestsState extends State<Requests> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        foregroundColor: Colors.black87,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Requests'),
+        centerTitle: true,
+        actions: [
+          Hero(
+              tag: 'logo',
+              child: Image(image: AssetImage('images/logo.png')))
+        ],
+      ),
       body: Container(
         child: Column(
           children: [

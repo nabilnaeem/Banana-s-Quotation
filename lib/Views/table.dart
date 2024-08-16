@@ -55,8 +55,8 @@ price_ui=List.generate(sum, (index) => TextEditingController());
 total_ui=List.generate(ui.length, (index) => TextEditingController());
 
 items=quotation.quotation.items.isEmpty?[Item_Model(item: '', quantity: 1, price: 1,id: '')]:quotation.quotation.items;
-print(ui);
-print(items.length);
+
+
 for (int i=0; i< items.length;i++){
   setState(() {
     items_ui[i].text=items[i].item;
@@ -547,7 +547,7 @@ controller.update_table_items(items);
 Widget text_custum(String text,{bool header=false}){
     return   Center(child: Padding(
       padding:  EdgeInsets.all(header? h/80:h/85),
-      child: Text(text,style: TextStyle(fontSize:  h/85,fontWeight: FontWeight.bold),),
+      child: Text(text,style: TextStyle(fontSize:  h/60,fontWeight: FontWeight.bold),),
     ));
 }
 
