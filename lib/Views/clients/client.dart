@@ -35,6 +35,7 @@ class _ClientState extends State<Client> {
     name.text=client.name;
     phone.text=client.phone;
     email.text=client.e_mail;
+    contact.text=client.contact;
 
 
   }
@@ -65,7 +66,7 @@ class _ClientState extends State<Client> {
             if(controller.current_user.admin){
               try{
 
-                await supabase.from('Client').update(Client_Model(id: client.id, name: name.text, phone: phone.text, e_mail: email.text).tojson()).eq('client_id', client.id).select();
+                await supabase.from('Client').update(Client_Model(id: client.id, name: name.text, phone: phone.text, e_mail: email.text,contact: contact.text).tojson()).eq('client_id', client.id).select();
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
                 pop_up_dialog("Client updated", 'Done', context, false);
 

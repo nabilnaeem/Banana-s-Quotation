@@ -56,7 +56,7 @@ class _HomeState extends State<Home> {
                   Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(Quotation_Model(
                     ui: [1],
                     is_original: true,original_id: '',
-                        id: 'iid', dec: 'dec', client_model: Client_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), time: DateTime.now(), account_manger_model: Account_manger_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), total: 0, items: [
+                        id: 'iid', dec: 'dec', client_model: Client_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail',contact: ''), time: DateTime.now(), account_manger_model: Account_manger_Model(id: 'id', name: 'name', phone: 'phone', e_mail: 'e_mail'), total: 0, items: [
                           Item_Model(item: '', quantity: 0, price: 0,id: ''),
 
                   ]),false,controller,[1])));
