@@ -116,6 +116,7 @@ List <Item_Model> items=[];
                 items: controller.Table_Items);
 
           Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[New_Quotation_Model(quotation: quotaion_model, ui: controller.UI)],edit: edit,)));
+          print(edit);
            },
           child: Container(
             padding: EdgeInsets.all(5),
@@ -638,14 +639,18 @@ List <Item_Model> items=[];
                         ),
                         SizedBox(height: 10,),
                         ElevatedButton(onPressed: ()async{
-                         await supabase.from('clint').insert(Client_Model(id: 'id', name: name.text, phone: phone.text, e_mail: e_mail.text,contact: contact.text).tojson()).select().then((value) async{
-                           await controller.get_clints();
-                           controller.update();
+                        try{
+                          await supabase.from('Client').insert(Client_Model(id: 'id', name: name.text, phone: phone.text, e_mail: e_mail.text,contact: contact.text).tojson()).select().then((value) async{
+                            await controller.get_clints();
+                            controller.update();
 
-                         });
+                          });
 
                           Navigator.pop(context);
 
+                        }catch(e){
+                          print(e);
+                        }
                         }, child: Text('ADD'))
 
 

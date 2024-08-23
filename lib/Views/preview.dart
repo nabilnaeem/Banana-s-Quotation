@@ -148,7 +148,7 @@ bool loding=false;
     ));
   }
   Widget theme_pop_up(int index,Data_controller controller){
-    List items1=['Copy & Update','Download','Active','Cancel'];
+    List items1=['Copy & Update','edit','Download','Active','Cancel'];
     List items2=['Copy & Update','Download'];
     List items=controller.current_user.admin?items1:items2;
     return PopupMenuButton(
@@ -160,6 +160,8 @@ bool loding=false;
             case 'Copy & Update':on_update(index, controller);
             break;
             case 'Download':on_download(index);
+            break;
+            case 'edit':on_edit(controller,index);
             break;
             case 'Active':on_change_status('Active',controller,index);
             break;
@@ -182,6 +184,22 @@ on_download(i){
   generateAndDownloadPdf(quotation[i], 620, true);
 
 }
+  on_edit(Data_controller controller,int index)async{
+    // try{
+    //   await supabase
+    //       .from('quote_requ')
+    //       .update({'approval': true})
+    //       .eq('id', quotation.id)
+    //       .select().then((value) {
+    //         controller.quote_requ();
+    //     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+    //   });
+    // }catch(e){
+    //   print(e);
+    // }
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>New_Quote(quotation[index].quotation, false, controller, quotation[index].quotation.ui,edit: true,)));
+    print(true);
+  }
 on_change_status(String status,controller,i)async{
 
   try{
@@ -323,10 +341,11 @@ on_change_status(String status,controller,i)async{
         child:Image.asset('images/logo.png'),
         onPressed: (){
 
-          if(update){
-            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0].quotation,true,controller,quotation[0].quotation.ui)));
-          }else if(edit){
-           edit_quote(controller);
+          if(edit){
+
+            edit_quote(controller);
+          }else if(update){
+           Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[0].quotation,true,controller,quotation[0].quotation.ui)));
           }else{
             Add_quote(controller);
           }

@@ -25,7 +25,7 @@ class Client_Model{
 
   );
   tojson() => {
-'client_id':id,
+
     'name':name,
     'Contact':contact,
     'phone':phone,
