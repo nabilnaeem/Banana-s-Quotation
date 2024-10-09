@@ -53,7 +53,7 @@ update();
     print('pass2');
    try {
       final response = await supabase.from('Client').select(
-          'client_id,name,email,phone,Contact,quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
+          'client_id,name,email,phone,Contact,quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
       final List<dynamic> data = response as List<dynamic>;
       print('pass3');
       for (int i = 0; i < data.length; i++) {
