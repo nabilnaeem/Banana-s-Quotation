@@ -1,3 +1,4 @@
+import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Views/Home.dart';
 import 'package:banana/Views/Login.dart';
 import 'package:banana/Views/preview.dart';
@@ -14,13 +15,14 @@ import '../models/item model.dart';
 import '../models/quote model.dart';
 
 class First extends StatefulWidget {
-  const First({Key? key}) : super(key: key);
+
 
   @override
   State<First> createState() => _FirstState();
 }
 
 class _FirstState extends State<First> {
+
 
   @override
   void initState() {

@@ -27,18 +27,20 @@ class _ClientsState extends State<Clients> {
                 child: Image(image: AssetImage('images/logo.png')))
           ],
         ),
-        body: Column(
-          children: controller.Clints2.map((e) => Column(
-            children: [
-              ListTile(
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (c)=>Client(e)));
-                },
-                title: Text(e.name),trailing: Icon(Icons.arrow_forward_ios_rounded),),
-              SizedBox(height: 5,),
-              Divider(),
-            ],
-          )).toList(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: controller.Clints2.map((e) => Column(
+              children: [
+                ListTile(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (c)=>Client(e)));
+                  },
+                  title: Text(e.name),trailing: Icon(Icons.arrow_forward_ios_rounded),),
+                SizedBox(height: 5,),
+                Divider(),
+              ],
+            )).toList(),
+          ),
         ),
       ),
     );

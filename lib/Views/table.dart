@@ -4,7 +4,9 @@ import 'package:banana/models/item%20model.dart';
 import 'package:banana/models/quote%20model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:intl/intl.dart';
 
 
 
@@ -79,8 +81,9 @@ int ui_index=0;
             children: [
               Column(
                 children: ui.asMap().map((key, value) {
-                  sum=key==0?0:sum+ui[key-1];
-                  return MapEntry(key, key==0?first_table(items.sublist(0, ui[key]),key,controller,preview: !edit):secound_table(items.sublist(sum, (sum)+ui[key]),key,controller,preview:  !edit));
+                   sum=key==0?0:sum+ui[key-1];
+                  return MapEntry(key, key==0?first_table(items.sublist(0, ui[key]),key,controller,preview: !edit):
+                  secound_table(items.sublist(sum, (sum)+ui[key]),key,controller,preview:  !edit));
                 }).values.toList(),
               ),
             edit?  Row(
@@ -106,7 +109,7 @@ int ui_index=0;
                     ),
                   ),
                 ],
-              ):SizedBox(),
+              ):therd_table(),
             ],
           ),
     )
@@ -115,7 +118,10 @@ int ui_index=0;
 
   Widget first_table(List<Item_Model> e,int key,Data_controller controller,{bool preview=true}){
 
-    double sum_total=IterableZip([price_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
+    double sum_total0=IterableZip([price_ui.sublist(0, ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(0, ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
+    String sum_total = NumberFormat('#,###').format(double.parse(sum_total0.toString()));
+
+
     return Table(
         border: TableBorder.symmetric(
                       inside: BorderSide(width: h/2000, color: Colors.black),
@@ -169,7 +175,7 @@ int ui_index=0;
                         edit? TextFormField(
                           textAlign: TextAlign.center,
                           onChanged: (i){
-                            e[index].item=items_ui[index+sum].text;
+                            e[index].item=items_ui[index].text;
                             update_total(controller);
 
 
@@ -177,9 +183,9 @@ int ui_index=0;
 
                             });
                           },
-                          controller: items_ui[index+sum],):
-                        text_custum(items_ui[index+sum].text),
-                        edit?   theme_pop_up(index+sum):SizedBox(),
+                          controller: items_ui[index],):
+                        text_custum(items_ui[index].text),
+                        edit?   theme_pop_up(index):SizedBox(),
 
                       ],
                     ))]),)),
@@ -192,16 +198,16 @@ int ui_index=0;
                 edit?  TextFormField(
                   textAlign: TextAlign.center,
                   onChanged: (i){
-                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
+                    e[index].quantity=double.parse(quantity_ui[index].text);
                     update_total(controller);
                     setState(() {
 
                     });
                   },
-                  controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
+                  controller: quantity_ui[index],): text_custum(quantity_ui[index].text)
                 )
                 ]),)),
-            Center(child: text_custum(sum_total.toString())),
+            Center(child: text_custum(double.parse(sum_total0.toString())==0?"F.O.C":sum_total.toString()+" "+"EGP")),
           ]:[
             Table(
                 border: TableBorder.symmetric(
@@ -213,9 +219,11 @@ int ui_index=0;
                     children:[ Center(child: Stack(
                       children: [
                         edit? TextFormField(
+
                           textAlign: TextAlign.center,
                           onChanged: (i){
-                            e[index].item=items_ui[index+sum].text;
+
+                            e[index].item=items_ui[index].text;
                             update_total(controller);
 
 
@@ -223,9 +231,9 @@ int ui_index=0;
 
                             });
                           },
-                          controller: items_ui[index+sum],):
-                        text_custum(items_ui[index+sum].text),
-                        edit?   theme_pop_up(index+sum):SizedBox(),
+                          controller: items_ui[index],):
+                        text_custum(items_ui[index].text),
+                        edit?   theme_pop_up(index):SizedBox(),
 
                       ],
                     ))]),)),
@@ -236,35 +244,43 @@ int ui_index=0;
                 ),
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                  ],
                   textAlign: TextAlign.center,
                   onChanged: (i){
-                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
+
+
+                    e[index].quantity=double.parse(quantity_ui[index].text);
                     update_total(controller);
                     setState(() {
 
                     });
                   },
-                  controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
+                  controller: quantity_ui[index],): text_custum(quantity_ui[index].text)
                 )
                 ]),)),
-           Table(
+            Table(
                 border: TableBorder.symmetric(
                     inside: BorderSide(width: h/2000, color: Colors.black),
                     outside: BorderSide(width: h/2000, color: Colors.black)
                 ),
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit? TextFormField(
+
                   textAlign: TextAlign.center,
                   onChanged: (w){
-                    e[index].price=double.parse(price_ui[index+sum].text);
+
+
+                    e[index].price=double.parse(price_ui[index].text);
                     update_total(controller);
                     setState(() {
 
                     });
                   },
-                  controller: price_ui[index+sum],): text_custum(price_ui[index+sum].text),
+                  controller: price_ui[index],): text_custum(price_ui[index].text),
                 )]),)),
-            Center(child: text_custum(sum_total.toString())),
+            Center(child: text_custum(double.parse(sum_total0.toString())==0?"F.O.C":sum_total.toString()+" "+"EGP")),
           ]
 
           ),
@@ -273,7 +289,8 @@ int ui_index=0;
   }
   Widget secound_table(List<Item_Model> e,int key,Data_controller controller,{bool preview=false}){
 
-    double sum_total=IterableZip([price_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
+    double sum_total0=IterableZip([price_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList(), quantity_ui.sublist(sum, (sum)+ui[key]).map((e) => e.text.isNotEmpty?double.parse(e.text):0.0).toList()]) .map((list) => list[0] * list[1]).reduce((a, b) => a + b);
+    String sum_total = NumberFormat('#,###').format(sum_total0);
     return Table(
         border: TableBorder.symmetric(
             inside: BorderSide(width: h/2000, color: Colors.black),
@@ -321,11 +338,13 @@ int ui_index=0;
                 ),
                 children: List.generate(e.length, (index) => TableRow(
 
-                    children:[ Center(child: Stack(
+                    children:[
+                      Center(child: Stack(
                       children: [
                         edit? TextFormField(
                           textAlign: TextAlign.center,
                           onChanged: (i){
+
                             e[index].item=items_ui[index+sum].text;
                             update_total(controller);
 
@@ -358,7 +377,7 @@ int ui_index=0;
                   controller: quantity_ui[index+sum],): text_custum(quantity_ui[index+sum].text)
                 )
                 ]),)),
-            Center(child: text_custum(sum_total.toString())),
+            Center(child: text_custum(double.parse(sum_total0.toString())==0?"F.O.C":sum_total.toString()+" "+"EGP")),
           ]:[
             Table(
                 border: TableBorder.symmetric(
@@ -372,6 +391,7 @@ int ui_index=0;
                         edit? TextFormField(
                           textAlign: TextAlign.center,
                           onChanged: (i){
+
                             e[index].item=items_ui[index+sum].text;
                             update_total(controller);
 
@@ -395,6 +415,7 @@ int ui_index=0;
                 edit?  TextFormField(
                   textAlign: TextAlign.center,
                   onChanged: (i){
+
                     e[index].quantity=double.parse(quantity_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
@@ -413,6 +434,7 @@ int ui_index=0;
                 edit? TextFormField(
                   textAlign: TextAlign.center,
                   onChanged: (w){
+                    print(index+sum);
                     e[index].price=double.parse(price_ui[index+sum].text);
                     update_total(controller);
                     setState(() {
@@ -421,7 +443,52 @@ int ui_index=0;
                   },
                   controller: price_ui[index+sum],): text_custum(price_ui[index+sum].text),
                 )]),)),
-            Center(child: text_custum(sum_total.toString())),
+            Center(child: text_custum(double.parse(sum_total0.toString())==0?"F.O.C":sum_total.toString()+" "+"EGP")),
+          ]
+
+          ),
+    ]);
+  }
+  Widget therd_table(){
+    String sum_total = NumberFormat('#,###').format(quotation.quotation.total);
+    return Table(
+        border: TableBorder.symmetric(
+            inside: BorderSide(width: h/2000, color: Colors.black),
+            outside: BorderSide(width: h/2000, color: Colors.black)
+        ),
+        columnWidths: {
+
+          0:FlexColumnWidth(9),
+          1:FlexColumnWidth(4),
+
+
+
+        },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: [
+       TableRow(children: [
+
+
+        SizedBox(),
+        SizedBox(),
+      ]
+       ),
+          TableRow(children: [
+            Table(
+                border: TableBorder.symmetric(
+                    inside: BorderSide(width: h/2000, color: Colors.black),
+                    outside: BorderSide(width: h/2000, color: Colors.black)
+                ),
+                children: [ TableRow(
+
+                    children:[
+                      Center(child:
+
+                        text_custum('Total'),
+
+                    )])]),
+            // Center(child: text_custum(quotation.quotation.total.toString()+" "+"EGP")),
+            Center(child: text_custum(double.parse(quotation.quotation.total.toString())==0?"F.O.C":sum_total.toString()+" "+"EGP")),
           ]
 
           ),
@@ -540,7 +607,8 @@ update_total(Data_controller controller){
 
    }
 
-
+print(ui);
+print(items);
 controller.update_table_ui(ui);
 controller.update_table_items(items);
   }

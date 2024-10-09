@@ -63,7 +63,7 @@ class _ClientState extends State<Client> {
       builder:(controller)=> Scaffold(
         floatingActionButton: InkWell(
           onTap: ()async{
-            if(controller.current_user.admin){
+            if(true){
               try{
 
                 await supabase.from('Client').update(Client_Model(id: client.id, name: name.text, phone: phone.text, e_mail: email.text,contact: contact.text).tojson()).eq('client_id', client.id).select();
@@ -194,14 +194,14 @@ class _ClientState extends State<Client> {
               SizedBox(height: 5,),
               Divider(),
               SizedBox(height: 5,),
-              Card(
+            controller.current_user.admin?  Card(
 
                 child: ListTile(
 
-                  title: Text('His Quotations'),trailing: CircleAvatar(child: Text(client.quotation.length.toString()),),onTap: (){
+                  title: Text("${client.name}'s Quotations"),trailing: CircleAvatar(child: Text(client.quotation.length.toString()),),onTap: (){
                   Navigator.of(context).push(MaterialPageRoute(builder: (c)=>History(client.quotation)));
                 },),
-              ),
+              ):SizedBox(),
             ],
           ),
         ),

@@ -65,6 +65,7 @@ bool loding=false;
   void initState() {
     // TODO: implement initState
  quotation.sort((a, b) => b.quotation.time.compareTo(a.quotation.time));
+ print(quotation[0].quotation.client_model.tojson());
 
   }
   @override
@@ -270,7 +271,7 @@ on_change_status(String status,controller,i)async{
       });
 
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
-      pop_up_dialog('Waiting for finance approval..', 'Done', context, false);
+      controller.current_user.admin?(){}: pop_up_dialog('Waiting for admin approval..', 'Done', context, false);
 
     }catch(e){
       print(e);
@@ -278,7 +279,7 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     }
-   generateAndDownloadPdf(quotation[0],620,true);
+   generateAndDownloadPdf(quotation[0],620,controller.current_user.admin);
 
 
   }
@@ -309,7 +310,7 @@ on_change_status(String status,controller,i)async{
         final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('quote_requ(id)');
        print('4');
        print(data);
-        await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
+       // await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
        print('5');
      }
      for(int i =0;i<remove_list.length;i++){
@@ -320,7 +321,7 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
-      pop_up_dialog('Waiting for finance approval..', 'Done', context, false);
+     controller.current_user.admin?(){}: pop_up_dialog('Waiting for admin approval..', 'Done', context, false);
 
     }catch(e){
       print(e);
@@ -328,7 +329,7 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     }
-    generateAndDownloadPdf(quotation[0],620,true);
+    generateAndDownloadPdf(quotation[0],620,controller.current_user.admin);
 
 
   }
@@ -429,7 +430,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                         ),
                         pw.SizedBox(height: h / 40),
                         pw.Text(
-                          "Contact: ${quotation.quotation.client_model.name}",
+                          "Contact: ${quotation.quotation.client_model.contact}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
                             fontSize: h / 65,
@@ -543,6 +544,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                               (index) {
                             final item = quotation.quotation.items[sum + index];
                             return pw.TableRow(
+
                               children: [
                                 pw.Center(
                                   child: pw.Padding(
@@ -557,10 +559,13 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                       ),
                       pw.Center(
                         child: pw.Text(
-                          IterableZip([
+            IterableZip([
+            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)==0?"F.O.C": IterableZip([
                             quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
                             quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString(),
+                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString()+" "+"EGP",
                           style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
                         ),
                       ),
@@ -640,7 +645,10 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                           IterableZip([
                             quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
                             quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString(),
+                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)  ==0?"F.O.C":  IterableZip([
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString()+" "+"EGP",
                           style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
                         ),
                       ),
@@ -654,6 +662,56 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
           }).values.toList(),
         ),
       ),
+      pw.Padding(
+        padding: pw.EdgeInsets.only(top: 0, bottom: 10, right: h / 18, left: h / 18),
+        child: pw.Table(
+              border: pw.TableBorder.symmetric(
+                inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+              ),
+              columnWidths: {
+                0: pw.FlexColumnWidth(10),
+                1: pw.FlexColumnWidth(4),
+              },
+              defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+              children: [
+                pw.TableRow(
+                  children: [
+                    pw.SizedBox(),
+                    pw.SizedBox(),
+                  ],
+                ),
+                pw.TableRow(
+                  children: [
+                    pw.Table(
+                      border: pw.TableBorder.symmetric(
+                        inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                      ),
+                      children: [pw.TableRow(
+                        children: [
+                          pw.Center(
+                            child: pw.Padding(
+                              padding: pw.EdgeInsets.all(h / 85),
+                              child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      )],
+                    ),
+
+                    pw.Center(
+                      child: pw.Text(
+  quotation.quotation.total==0?"F.O.C":  quotation.quotation.total.toString()+" "+"EGP",
+                        style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                      ),
+                    ),
+
+
+                  ],
+                ),
+              ],
+            ),),///new
 
       pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -661,53 +719,6 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
-                    pw.Padding(
-                      padding: pw.EdgeInsets.symmetric(horizontal: h / 18),
-                      child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.center,
-                        children: [
-                           pw.Column(
-                                    children: [
-                                      pw.SizedBox(
-                                        width: (h * 0.70707070) / 1.1,
-                                        child: pw.Padding(
-                                          padding: pw.EdgeInsets.symmetric(horizontal: h / 15, vertical:h/500),
-                                          child: pw.Row(
-                                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              pw.Text(
-                                                'Total',
-                                                style: pw.TextStyle(
-                                                  fontWeight: pw.FontWeight.bold,
-                                                  fontSize: h / 80,
-                                                ),
-                                              ),
-                                              pw.Text(
-                                                '${quotation.quotation.total}', // Replace with actual total value
-                                                style: pw.TextStyle(
-                                                  fontWeight: pw.FontWeight.bold,
-                                                  fontSize: h / 80,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-
-                                      pw.SizedBox(
-                                        width: (h * 0.70707070) / 1.1,
-                                        child: pw.Divider(
-                                          height: h / 100,
-                                          thickness: h / 2000,
-                                          color: PdfColors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                        ],
-                      ),
-                    ),
                     pw.Text(
                       "ALL PRICES EXCLUDE 14% VAT",
                       style: pw.TextStyle(
@@ -762,9 +773,11 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
 final blob = html.Blob([pdfBytes]);
   final url = html.Url.createObjectUrlFromBlob(blob);
 
-  final anchor = html.AnchorElement(href: url)
-    ..setAttribute('download', 'example.pdf')
-    ..click();
+      if(_download){
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute('download', '${quotation.quotation.client_model.name}-${quotation.quotation.dec} Quotation.pdf')
+      ..click();
+  }
 
   html.Url.revokeObjectUrl(url);
 

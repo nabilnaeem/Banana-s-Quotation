@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../models/cinet model.dart';
 
 Widget Quotation_item(Quotation_Model quotation , h,Data_controller controller,List <int>ui){
+  print(quotation.client_model.contact);
   return Container(
     height: h,
     width: h*0.70707070,
@@ -39,25 +40,25 @@ Widget Quotation_item(Quotation_Model quotation , h,Data_controller controller,L
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                padding:  EdgeInsets.symmetric(horizontal: h/10),
+                padding:  EdgeInsets.symmetric(horizontal: h/20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Clint : ${quotation.client_model.name}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/65),),
+                    Text("Clint : ${quotation.client_model.name}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/70),),
                     SizedBox(height: h/40,),
-                    Text("Contact : ${quotation.client_model.name}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/65),),
+                    Text("Contact : ${quotation.client_model.contact}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/70),),
 
                   ],
                 ),
               ),
               Padding(
-                padding:  EdgeInsets.only(right: h/8),
+                padding:  EdgeInsets.only(right: h/10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Date : ${(quotation.time.day)}/${(quotation.time.month)}/${(quotation.time.year)}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/65),),
                     SizedBox(height: h/40,),
-                    Text("Description : ${quotation.dec}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/70),),
+                    Text("Description : ${quotation.dec}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/70,),),
 
                   ],
                 ),
@@ -66,41 +67,11 @@ Widget Quotation_item(Quotation_Model quotation , h,Data_controller controller,L
           ),
         ),
         Padding(
-          padding:  EdgeInsets.only(top: h/30,bottom: 0,right: h/18,left: h/18),
+          padding:  EdgeInsets.only(top: h/30,bottom: 10,right: h/18,left: h/18),
           child: IntrinsicHeight(
               child: My_Table(New_Quotation_Model(quotation: quotation, ui:ui), controller,h)),
         ),
 
-
-
-
-
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: h/18,vertical: h/400),
-          child: Column(
-            children: [
-              Padding(
-                padding:  EdgeInsets.symmetric(horizontal: h/18,vertical: h/400),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Total",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/80),),
-
-                    Text("${quotation.total}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: h/80),),
-
-                  ],
-                ),
-              ),
-
-              SizedBox(
-                  width:(h*0.70707070)/1.2,
-                  child: Divider(
-                    height: h/100,
-                    thickness: h/2000,color: Colors.black,)),
-            ],
-          ),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

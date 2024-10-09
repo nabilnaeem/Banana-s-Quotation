@@ -38,6 +38,7 @@ dependencies:
   get:
   pdf:
   collection:
+  intl:
   flutter:
     sdk: flutter
 

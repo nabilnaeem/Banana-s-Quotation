@@ -3,6 +3,7 @@ class User_model{
   String id;
   String name;
   String email;
+  String Department;
   bool admin;
 
 
@@ -10,6 +11,7 @@ class User_model{
   User_model(
       {
         required this.id,
+        required this.Department,
         required this.name,
         required this.email,
         required this.admin,
@@ -22,6 +24,8 @@ class User_model{
     name: map['name'],
     email: map['email'].toString(),
     admin: map['admin'],
+    Department:  map['Department'],
+
 
   );
   tojson(){
@@ -30,6 +34,7 @@ class User_model{
       'name':name,
       'email':email,
       'admin':admin,
+      'Department':Department,
 
 
 

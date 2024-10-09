@@ -19,7 +19,7 @@ class Data_controller extends GetxController{
   List <Quotation_Model> Quotations=[];
   List <User_model> Users=[];
   List <quotation_Request_Model> quote_Request=[];
-  User_model current_user=User_model(id: 'id', name: 'name', admin: false, email: 'e_mail');
+  User_model current_user=User_model(id: 'id', name: 'name', admin: false, email: 'e_mail',Department: 'd');
 
   Data_controller(){
 get_clints();
@@ -38,6 +38,7 @@ update();
 
       for (int i = 0; i < data.length; i++) {
         Clints.add(Client_Model.fromJson(data[i]));
+        print(Client_Model.fromJson(data[i]).contact);
         update();
       }
 
@@ -47,12 +48,14 @@ update();
    }
   }
   get_clints_related()async{
+    print('pass1');
     Clints2=[];
+    print('pass2');
    try {
       final response = await supabase.from('Client').select(
           'client_id,name,email,phone,Contact,quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
       final List<dynamic> data = response as List<dynamic>;
-
+      print('pass3');
       for (int i = 0; i < data.length; i++) {
         Clints2.add(Client_Model2.fromJson(data[i]));
         update();
@@ -60,7 +63,7 @@ update();
 
       print("Clients2 => " + Clints2.length.toString());
     }catch(e){
-     print(e);
+     print("error====> ${e}");
    }
   }
   get_account_mangers()async{
@@ -80,7 +83,7 @@ update();
     Quotations=[];
   try  {
       final response =
-      await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval)');
+      await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval)');
 
       final List<dynamic> data = response as List<dynamic>;
 
@@ -98,7 +101,7 @@ update();
   get_users()async{
 
     Users=[];
-    final response=await supabase.from('users').select('email,name,admin,id');
+    final response=await supabase.from('users').select('email,name,admin,id,Department');
     final List<dynamic> data = response as List<dynamic>;
     for(int i =0;i<data.length;i++){
       Users.add(User_model.fromjson(data[i]));
@@ -106,7 +109,7 @@ update();
       update();
     }
     update();
-    print("admins => "+Users.length.toString());
+    print("Users => "+Users.length.toString());
     await get_current();
 
   }
@@ -132,7 +135,7 @@ update();
   quote_requ()async{
     quote_Request=[];
     try{
-      final response = await supabase.from('quote_requ').select('id,comment,approval,users(id,name,email,admin),quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))').eq('approval', false);
+      final response = await supabase.from('quote_requ').select('id,comment,approval,users(id,name,email,admin,Department),quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))').eq('approval', false);
       final List<dynamic> data = response as List<dynamic>;
       for(int i =0;i<data.length;i++){
         quote_Request.add(quotation_Request_Model.fromjson(data[i]));

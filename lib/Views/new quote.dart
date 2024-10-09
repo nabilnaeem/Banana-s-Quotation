@@ -10,6 +10,7 @@ import 'package:banana/models/quote%20model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -51,7 +52,7 @@ List <Item_Model> items=[];
   bool update;
   double total=0.0;
   _New_QuoteState(this.quotation, this.update,this.data,this.ui,this.edit);
-
+bool have_account_manager=false;
   @override
   void initState() {
     // TODO: implement initState
@@ -67,6 +68,11 @@ List <Item_Model> items=[];
     item=List.generate(1, (index) => TextEditingController());
     quantity=List.generate(1, (index) => TextEditingController());
     price=List.generate(1, (index) => TextEditingController());
+    if(data.current_user.Department=="account manger"){
+
+account_manger=data.Account_manger[data.Account_manger.indexWhere((element) => element.e_mail==data.current_user.email)];
+have_account_manager=true;
+    }
   }
   edit_quote(){
 
@@ -86,7 +92,7 @@ List <Item_Model> items=[];
     setState(() {
        client=data.Clints[data.Clints.indexWhere((element) => element.name==quotation.client_model.name)];
        account_manger=data.Account_manger[data.Account_manger.indexWhere((element) => element.name==quotation.account_manger_model.name)];
-
+       have_account_manager=true;
       selectedDate=quotation.time;
       dec.text=quotation.dec;
 
@@ -103,21 +109,36 @@ List <Item_Model> items=[];
       builder:(controller)=> Scaffold(
         floatingActionButton:  controller.Table_Items.length==0?SizedBox(): InkWell(
           onTap: (){
-            Quotation_Model quotaion_model=Quotation_Model(
-              ui: ui,
-              is_original: !update,
-                original_id: update?quotation.is_original?quotation.id:quotation.original_id:'',
-                id: quotation.id,
-                dec: dec.text,
-                client_model: client,
-                time: selectedDate,
-                account_manger_model: account_manger,
-                total: controller.total_quote_in_reivew,
-                items: controller.Table_Items);
+                if(!dec.text.isEmpty||!client.isBlank||!account_manger.isBlank){
+                    Quotation_Model quotaion_model = Quotation_Model(
+                        ui: ui,
+                        is_original: !update,
+                        original_id: update
+                            ? quotation.is_original
+                                ? quotation.id
+                                : quotation.original_id
+                            : '',
+                        id: quotation.id,
+                        dec: dec.text,
+                        client_model: client,
+                        time: selectedDate,
+                        account_manger_model: account_manger,
+                        total: controller.total_quote_in_reivew,
+                        items: controller.Table_Items);
 
-          Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(false,[New_Quotation_Model(quotation: quotaion_model, ui: controller.UI)],edit: edit,)));
-          print(edit);
-           },
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (c) => QuotePdf(
+                              false,
+                              [
+                                New_Quotation_Model(
+                                    quotation: quotaion_model,
+                                    ui: controller.UI)
+                              ],
+                              edit: edit,
+                            )));
+                    print(edit);
+                  }
+                },
           child: Container(
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
@@ -132,24 +153,7 @@ List <Item_Model> items=[];
               children: [
                 Text('Next',style: TextStyle(color: Colors.white),),
                 Icon(Icons.arrow_forward,color: Colors.white,)
-                // FloatingActionButton(
-                //   backgroundColor: Colors.black87,
-                //   child: Row(
-                //     children: [
-                //       Text('Next',style: TextStyle(color: Colors.white),),
-                //       Icon(icon)
-                //
-                //     ],
-                //   ),
-                //   onPressed: ()async{
-                //     // for(int i =0; i<item.length;i++){
-                //     //   items.add(Item_Model(item: item[i].text, quantity: double.parse(quantity[i].text), price: double.parse(price[i].text)));
-                //     // }
-                //     // await Add_quote().then((value) => Navigator.pop(context));
-                //
-                //
-                //   },
-                // )
+
               ],
             ),
           ),
@@ -297,7 +301,7 @@ List <Item_Model> items=[];
                                       children: [
                                         Text('Account manger : ', style: TextStyle(fontWeight: FontWeight.bold)),
                                         SizedBox(width: 10,),
-                                        DropdownButton<Account_manger_Model>(
+                                       have_account_manager?Text(account_manger.name): DropdownButton<Account_manger_Model>(
 
                                           focusColor: Colors.transparent,
                                           hint: Text('Choose'),
@@ -451,9 +455,9 @@ List <Item_Model> items=[];
                                     child: Row(
 
                                       children: [
-                                        Text('Account manger : ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        Text('Account manager : ', style: TextStyle(fontWeight: FontWeight.bold)),
                                         SizedBox(width: 10,),
-                                        DropdownButton<Account_manger_Model>(
+                                       have_account_manager? Text(account_manger.name):DropdownButton<Account_manger_Model>(
 
                                           focusColor: Colors.transparent,
                                           hint: Text('Choose'),
@@ -463,6 +467,7 @@ List <Item_Model> items=[];
                                           onChanged: (val){
                                             setState(() {
                                               account_manger=val!;
+
                                             });
                                           },
                                           value:account_manger ,),
@@ -678,257 +683,3 @@ List <Item_Model> items=[];
 
 
 
-//Column(
-//               children: [
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: Container(
-//                           padding: EdgeInsets.all(5),
-//                           color: Colors.black87,
-//                           child: Text("Items", style: TextStyle(
-//                               color: Colors.white,
-//                               fontWeight: FontWeight.bold))),
-//                     ),
-//                   ],
-//                 ),
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: DataTable(
-//
-//
-//
-//                         columnSpacing: 0,
-//                         horizontalMargin: 0,
-//
-//                         border: TableBorder.symmetric(
-//                             inside: BorderSide(width: h/2000, color: Colors.black),
-//                             outside: BorderSide(width: h/2000, color: Colors.black)
-//                         ),
-//                         columns: <DataColumn>[
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Id',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Item',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Quantity',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Price',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Total',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//                           DataColumn(
-//
-//                               label: Expanded(
-//                                 child: Row(
-//                                   mainAxisAlignment: MainAxisAlignment.center,
-//                                   children: [
-//                                     Text('Delete',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-//                                   ],
-//                                 ),
-//                               )),
-//
-//                         ],
-//                         rows: item.asMap().map((key, value) => MapEntry(key,
-//                             DataRow(
-//                                 cells: [
-//                                   DataCell(
-//                                     SizedBox(
-//                                       child: Row(
-//                                         mainAxisAlignment: MainAxisAlignment.center,
-//                                         children: [
-//                                           Text((key+1).toString()),
-//                                         ],
-//                                       ),
-//                                     ),),
-//                                   DataCell(
-//                                     Row(
-//                                       mainAxisAlignment: MainAxisAlignment.center,
-//                                       children: [
-//                                         Expanded(child: Padding(
-//                                           padding: const EdgeInsets.all(5.0),
-//                                           child: TextFormField(
-//                                             textAlign: TextAlign.center,
-//
-//                                             onChanged: (v){
-//                                               setState(() {
-//
-//                                               });
-//                                             },
-//                                             controller: item[key],
-//                                             decoration: InputDecoration(
-//                                                 border: InputBorder.none
-//                                             ),
-//                                           ),
-//                                         ))
-//                                       ],
-//                                     ),),
-//                                   DataCell(
-//                                     SizedBox(
-//                                       child: Row(
-//                                         children: [
-//                                           Expanded(child: Padding(
-//                                             padding: const EdgeInsets.all(5.0),
-//                                             child: TextFormField(
-//                                               textAlign: TextAlign.center,
-//                                               keyboardType: TextInputType.number,
-//                                               inputFormatters: [
-//                                                 FilteringTextInputFormatter.digitsOnly, // Allow only digits
-//                                               ],
-//
-//                                               onChanged: (v){
-//                                                 setState(() {
-//                                                   total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
-//
-//                                                 });
-//                                               },
-//                                               controller: quantity[key],
-//                                               decoration: InputDecoration(
-//                                                   border: InputBorder.none
-//                                               ),
-//                                             ),
-//                                           ))
-//                                         ],
-//                                       ),
-//                                     ),),
-//                                   DataCell(
-//                                     SizedBox(
-//                                       child: Row(
-//                                         children: [
-//                                           Expanded(child: Padding(
-//                                             padding: const EdgeInsets.all(5.0),
-//                                             child: TextFormField(
-//                                               textAlign: TextAlign.center,
-//                                               keyboardType: TextInputType.number,
-//                                               inputFormatters: [
-//                                                 FilteringTextInputFormatter.digitsOnly, // Allow only digits
-//                                               ],
-//
-//                                               onChanged: (v){
-//                                                 setState(() {
-//                                                   total[key]=double.parse(quantity[key].text.isEmpty?0.toString():quantity[key].text)*double.parse(price[key].text.isEmpty?0.toString():price[key].text);
-//
-//                                                 });
-//                                               },
-//                                               controller: price[key],
-//                                               decoration: InputDecoration(
-//                                                   border: InputBorder.none
-//                                               ),
-//                                             ),
-//                                           ))
-//                                         ],
-//                                       ),
-//                                     ),),
-//                                   DataCell(
-//                                     SizedBox(
-//                                       child: Row(
-//                                         mainAxisAlignment: MainAxisAlignment.center,
-//                                         children: [
-//                                           Text((double.parse(price[key].text.isEmpty?'0':price[key].text)*double.parse(quantity[key].text.isEmpty?'0':quantity[key].text)).toString())
-//                                         ],
-//                                       ),
-//                                     ),),
-//                                   DataCell(
-//                                     SizedBox(
-//                                       child: Row(
-//                                         mainAxisAlignment: MainAxisAlignment.center,
-//                                         children: [
-//                                           IconButton(onPressed: (){
-//                                             setState(() {
-//                                               item.removeAt(key);
-//                                               quantity.removeAt(key);
-//                                               price.removeAt(key);
-//                                               total.remove(key);
-//                                             });
-//                                           },icon: Icon(Icons.close,size: 15,color: Colors.red,),)
-//                                         ],
-//                                       ),
-//                                     ),),
-//
-//
-//
-//                                 ])
-//                         )).values.toList(),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.end,
-//                   children: [
-//                     InkWell(
-//                       onTap: (){
-//                         setState(() {
-//                           item.add(TextEditingController());
-//                           quantity.add(TextEditingController());
-//                           price.add(TextEditingController());
-//
-//                         });
-//                       },
-//                       child: Container(
-//                         padding: EdgeInsets.all(8),
-//                         margin: EdgeInsets.all(8),
-//                         alignment: Alignment.center,
-//                         decoration: BoxDecoration(
-//                           color: Colors.black87,
-//                           borderRadius: BorderRadius.circular(5),
-//
-//                         ),
-//                         child: Text('Add Row',style: TextStyle(color: Colors.white),),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 Divider(),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                   children: [
-//                     Text('Total :',style: TextStyle(fontWeight: FontWeight.bold),),
-//                     SizedBox(width: 20,),
-//                     Text(total.values!.fold(0.0, (sum, item) => sum + item).toString(),style: TextStyle(fontWeight: FontWeight.bold))
-//                   ],
-//                 ),
-//                 Divider(),
-//                 SizedBox(height: h/10,)
-//               ],
-//             ),
