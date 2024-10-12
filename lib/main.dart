@@ -4,6 +4,7 @@ import 'package:banana/Views/First.dart';
 import 'package:banana/Views/Login.dart';
 import 'package:banana/Views/history.dart';
 import 'package:banana/Views/new%20quote.dart';
+import 'package:banana/Views/test.dart';
 import 'package:banana/models/item%20model.dart';
 import 'package:banana/models/quote%20model.dart';
 import 'package:firebase_core/firebase_core.dart';

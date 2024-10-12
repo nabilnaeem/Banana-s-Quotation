@@ -66,7 +66,7 @@ class _View_quote_requState extends State<View_quote_requ> {
 
 
                       ElevatedButton(onPressed: (){
-                      generateAndDownloadPdf(New_Quotation_Model(quotation: quotation.quotation, ui: quotation.quotation.ui), h, true);
+                      generateAndDownloadPdf(New_Quotation_Model(quotation: quotation.quotation, ui: quotation.quotation.ui), h, true,controller);
                     }, child: Text('Download')),
 
                     ElevatedButton(onPressed: (){

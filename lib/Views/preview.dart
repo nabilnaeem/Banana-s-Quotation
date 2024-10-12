@@ -72,6 +72,7 @@ bool loding=false;
   Widget build(BuildContext context) {
     double h=MediaQuery.of(context).size.height-100;
     double w=MediaQuery.of(context).size.width;
+
     return GetBuilder<Data_controller>(
       builder:(controller)=> Scaffold(
         appBar: AppBar(
@@ -160,7 +161,7 @@ bool loding=false;
           switch(e){
             case 'Copy & Update':on_update(index, controller);
             break;
-            case 'Download':on_download(index);
+            case 'Download':on_download(index,controller);
             break;
             case 'edit':on_edit(controller,index);
             break;
@@ -181,8 +182,9 @@ bool loding=false;
   on_update(i,controller){
     Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[i].quotation,true,controller,[1])));
 }
-on_download(i){
-  generateAndDownloadPdf(quotation[i], 620, true);
+on_download(i,controller){
+
+  generateAndDownloadPdf(quotation[i], 620, true,controller);
 
 }
   on_edit(Data_controller controller,int index)async{
@@ -227,7 +229,7 @@ on_change_status(String status,controller,i)async{
       loding=false;
     });
   }
-  generateAndDownloadPdf(quotation[0],620,true);
+  generateAndDownloadPdf(quotation[0],620,true,controller);
 
 
 }
@@ -279,7 +281,7 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     }
-   generateAndDownloadPdf(quotation[0],620,controller.current_user.admin);
+   generateAndDownloadPdf(quotation[0],620,controller.current_user.admin,controller);
 
 
   }
@@ -329,7 +331,7 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     }
-    generateAndDownloadPdf(quotation[0],620,controller.current_user.admin);
+    generateAndDownloadPdf(quotation[0],620,controller.current_user.admin,controller);
 
 
   }
@@ -374,9 +376,15 @@ Widget loading(h,w){
 
 
 
-void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) async {
-  int sum = 0;
+void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_controller controller) async {
+  double real=Get.context!.size!.height+500;
+  List data=controller.height;
   h=620;
+  List custom=[];
+  for(int i=0;i<data.length;i++){
+    custom.add(h*(data[i]/real));
+  }
+  int sum = 0;
   final pdf = pw.Document();
   final imageProvider = pw.MemoryImage(
     (await rootBundle.load('images/logo2.png')).buffer.asUint8List(),
@@ -417,7 +425,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Padding(
-                    padding: pw.EdgeInsets.symmetric(horizontal: h / 10),
+                    padding: pw.EdgeInsets.only(left: h / 15),
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
@@ -425,7 +433,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                           "Client: ${quotation.quotation.client_model.name}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 65,
+                            fontSize: h / 70,
                           ),
                         ),
                         pw.SizedBox(height: h / 40),
@@ -433,14 +441,14 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                           "Contact: ${quotation.quotation.client_model.contact}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 65,
+                            fontSize: h / 70,
                           ),
                         ),
                       ],
                     ),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(right: h / 8),
+                    padding: pw.EdgeInsets.only(right: h / 12),
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
@@ -448,7 +456,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                           "Date : ${(quotation.quotation.time.day)}/${(quotation.quotation.time.month)}/${(quotation.quotation.time.year)}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 65,
+                            fontSize: h / 70,
                           ),
                         ),
                         pw.SizedBox(height: h / 40),
@@ -456,7 +464,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                           "Description: ${quotation.quotation.dec}",
                           style: pw.TextStyle(
                             fontWeight: pw.FontWeight.bold,
-                            fontSize: h / 65,
+                            fontSize: h / 70,
                           ),
                         ),
                       ],
@@ -523,10 +531,12 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                             final item = quotation.quotation.items[sum + index];
                             return pw.TableRow(
                               children: [
-                                pw.Center(
-                                  child: pw.Padding(
-                                    padding: pw.EdgeInsets.all(h / 85),
-                                    child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                pw.Padding(
+                                  padding: pw.EdgeInsets.all( h/150),
+                                  child: pw.Container(
+                                      alignment:pw. Alignment.center,
+                                    height: custom[index],
+                                      child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold))
                                   ),
                                 ),
                               ],
@@ -546,11 +556,13 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                             return pw.TableRow(
 
                               children: [
-                                pw.Center(
-                                  child: pw.Padding(
-                                    padding: pw.EdgeInsets.all(h / 85),
-                                    child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  ),
+                                pw.Padding(
+                                  padding: pw.EdgeInsets.all( h/150),
+                                  child: pw.Container(
+                                    alignment:pw. Alignment.center,
+                                    height: custom[index],
+                                    child:pw. Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                  )
                                 ),
                               ],
                             );
@@ -607,11 +619,13 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                             final item = quotation.quotation.items[sum + index];
                             return pw.TableRow(
                               children: [
-                                pw.Center(
-                                  child: pw.Padding(
-                                    padding: pw.EdgeInsets.all(h / 85),
+                                pw.Padding(
+                                  padding:pw.EdgeInsets.all( h/150),
+                                  child: pw.Container(
+                                    alignment:pw. Alignment.center,
+                                    height: custom[sum + index],
                                     child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  ),
+                                  )
                                 ),
                               ],
                             );
@@ -629,11 +643,13 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download) asyn
                             final item = quotation.quotation.items[sum + index];
                             return pw.TableRow(
                               children: [
-                                pw.Center(
-                                  child: pw.Padding(
-                                    padding: pw.EdgeInsets.all(h / 85),
+                                pw.Padding(
+                                  padding: pw.EdgeInsets.all( h/150),
+                                  child: pw.Container(
+                                    alignment:pw. Alignment.center,
+                                    height: custom[sum + index],
                                     child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  ),
+                                  )
                                 ),
                               ],
                             );
