@@ -59,7 +59,7 @@ class Quotation_Model{
        'client_id':double.parse(client_model.id).toInt(),
        'date':DateTime(time.year,time.month,time.day).toString(),
        'account_manager_id':double.parse(account_manger_model.id).toInt(),
-       'total':total,
+       'total':total.ceil(),
        'is_original':is_original,
        'ui':ui
 

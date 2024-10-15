@@ -415,7 +415,7 @@ if(Quotations.length!=0){
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 5),
-                            child: Text('${filterEvents()[i].client_model.name} / ${filterEvents()[i].dec}',style: TextStyle(fontWeight: FontWeight.w600),),
+                            child: Text('${filterEvents()[i].client_model.name} / ${filterEvents()[i].dec}',style: TextStyle(fontWeight: FontWeight.w600,fontSize: h/100),),
                           )
                         ],
                       ),

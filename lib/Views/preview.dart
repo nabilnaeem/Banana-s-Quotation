@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart' show rootBundle;
@@ -292,15 +293,21 @@ on_change_status(String status,controller,i)async{
       setState(() {
         loding=true;
       });
+      print('pass1');
       final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('items(id)');
       print(data);
+      print('pass2');
      List old =data[0]['items'].map((item) => item['id']!).toList();
      print(old);
+      print('pass3');
      List newlist =quotation[0].quotation.items.map((e) => int.parse(e.id==''?'0':e.id)).toList();
       print(newlist);
+      print('pass4');
       List remove_list=old.where((element) => !newlist.contains(element)).toList();
       print(remove_list);
+      print('pass5');
       await supabase.from('quote').update(quotation[0].quotation.tojson()).eq('id', quotation[0].quotation.id).select();
+      print('pass6');
       print('1');
      for(int i =0;i<quotation[0].quotation.items.length;i++){
        print('2');
@@ -312,7 +319,7 @@ on_change_status(String status,controller,i)async{
         final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('quote_requ(id)');
        print('4');
        print(data);
-       // await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
+       await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
        print('5');
      }
      for(int i =0;i<remove_list.length;i++){
@@ -571,13 +578,14 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_
                       ),
                       pw.Center(
                         child: pw.Text(
-            IterableZip([
-            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)==0?"F.O.C": IterableZip([
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString()+" "+"EGP",
+            NumberFormat('#,##0').format(IterableZip([
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
+            NumberFormat('#,##0').format(IterableZip([
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) .toString()+" "+"EGP",
                           style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
                         ),
                       ),
@@ -658,13 +666,14 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_
                       ),
                       pw.Center(
                         child: pw.Text(
-                          IterableZip([
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)  ==0?"F.O.C":  IterableZip([
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-                            quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-                          ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b).toString()+" "+"EGP",
+            NumberFormat('#,##0').format(IterableZip([
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
+            NumberFormat('#,##0').format(IterableZip([
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)).toString()+" "+"EGP",
                           style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
                         ),
                       ),
@@ -718,7 +727,7 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_
 
                     pw.Center(
                       child: pw.Text(
-  quotation.quotation.total==0?"F.O.C":  quotation.quotation.total.toString()+" "+"EGP",
+  NumberFormat('#,##0').format(quotation.quotation.total) ==0?"F.O.C":  NumberFormat('#,##0').format(quotation.quotation.total).toString()+" "+"EGP",
                         style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
                       ),
                     ),

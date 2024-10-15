@@ -97,7 +97,10 @@ int ui_index=0;
               children: [
                 Column(
                   children: ui.asMap().map((key, value) {
+
+                    print(key);
                      sum=key==0?0:sum+ui[key-1];
+                     print(items.sublist(sum, (sum)+ui[key]));
                     return MapEntry(key, key==0?first_table(items.sublist(0, ui[key]),key,controller,h,preview: !edit):
                     secound_table(items.sublist(sum, (sum)+ui[key]),key,controller,h,preview:  !edit));
                   }).values.toList(),
@@ -132,6 +135,7 @@ int ui_index=0;
     )
       ;
   }
+
 
   Widget first_table(List<Item_Model> e,int key,Data_controller controller,h,{bool preview=true}){
 
@@ -274,7 +278,7 @@ children: [
                           textAlign: TextAlign.center,
                           onChanged: (i){
 
-                            e[index].item=items_ui[index].text;
+                            e[index].item=i;
                             update_total(controller);
 
 
@@ -293,14 +297,15 @@ children: [
 
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    DecimalInputFormatter(), // Allow numbers with a decimal point
                   ],
                   textAlign: TextAlign.center,
                   onChanged: (i){
 
 
-                    e[index].quantity=double.parse(quantity_ui[index].text);
+                    e[index].quantity=double.parse(i);
                     update_total(controller);
                     setState(() {
 
@@ -316,14 +321,14 @@ children: [
 
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit? TextFormField(
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    DecimalInputFormatter(), // Allow numbers with a decimal point
                   ],
                   textAlign: TextAlign.center,
                   onChanged: (w){
 
-
-                    e[index].price=double.parse(price_ui[index].text);
+                    e[index].price=double.parse(w);
                     update_total(controller);
                     setState(() {
 
@@ -374,10 +379,8 @@ children: [
 
            children: preview? [
 
-
         SizedBox(),
         SizedBox(),
-
         SizedBox(),
       ]:[
 
@@ -462,8 +465,10 @@ children: [
                         edit? TextFormField(
                           textAlign: TextAlign.center,
                           onChanged: (i){
+                            print(index+sum);
 
-                            e[index].item=items_ui[index+sum].text;
+                            e[index].item=i;
+                            print(items_ui[index+sum].text);
                             update_total(controller);
 
 
@@ -481,13 +486,14 @@ children: [
 
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit?  TextFormField(
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    DecimalInputFormatter(), // Allow numbers with a decimal point
                   ],
                   textAlign: TextAlign.center,
                   onChanged: (i){
 
-                    e[index].quantity=double.parse(quantity_ui[index+sum].text);
+                    e[index].quantity=double.parse(i);
                     update_total(controller);
                     setState(() {
 
@@ -501,12 +507,13 @@ children: [
                 children: List.generate(e.length, (index) => TableRow(children:[ Center(child:
                 edit? TextFormField(
                   textAlign: TextAlign.center,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    DecimalInputFormatter(), // Allow numbers with a decimal point
                   ],
                   onChanged: (w){
                     print(index+sum);
-                    e[index].price=double.parse(price_ui[index+sum].text);
+                    e[index].price=double.parse(w);
                     update_total(controller);
                     setState(() {
 
@@ -686,7 +693,6 @@ update_total(Data_controller controller){
    }
 
 print(ui);
-print(items);
 controller.update_table_ui(ui);
 controller.update_table_items(items);
   }
@@ -697,4 +703,19 @@ controller.update_table_items(items);
 
 
 
+}
+
+class DecimalInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    // Regular expression to match valid decimal numbers
+    final regex = RegExp(r'^\d*\.?\d*$');
+
+    // Check if the new value matches the regex
+    if (regex.hasMatch(newValue.text)) {
+      return newValue; // Accept the new value
+    }
+
+    return oldValue; // Reject the new value
+  }
 }

@@ -169,6 +169,6 @@ update();
   update_table_items(List <Item_Model> items){
     Table_Items=items;
     update();
-    print(Table_Items);
+    print(Table_Items.map((e) => Item_Model(item: e.item, quantity: e.quantity, price: e.price, id: e.id).tojson('id')));
   }
 }
