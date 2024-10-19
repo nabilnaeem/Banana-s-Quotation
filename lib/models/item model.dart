@@ -25,5 +25,7 @@ class Item_Model{
   double getTotalCost() {
     return price * quantity;
   }
-
+  Item_Model copy() {
+    return Item_Model(item: this.item, quantity: this.quantity, price: this.price,id:this.id);
+  }
 }

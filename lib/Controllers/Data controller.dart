@@ -9,18 +9,21 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Data_controller extends GetxController{
+  List <Quotation_Model> get quotations_main=> Quotations_main;
   List height=[];
   double total_quote_in_reivew=0.0;
+  double subtotal_quote_in_reivew=0.0;
+  double discount=0.0;
   List <int> UI=[];
   List <Item_Model> Table_Items=[];
   final supabase=Supabase.instance.client;
   List <Client_Model> Clints=[];
   List <Client_Model2> Clints2=[];
   List <Account_manger_Model> Account_manger=[];
-  List <Quotation_Model> Quotations=[];
+  List <Quotation_Model> Quotations_main=[];
   List <User_model> Users=[];
   List <quotation_Request_Model> quote_Request=[];
-  User_model current_user=User_model(id: 'id', name: 'name', admin: false, email: 'e_mail',Department: 'd');
+  User_model current_user=User_model(id: 'id', name: 'name', admin: false, email: 'e_mail',Department: 'd',pass: 'pass');
 
   Data_controller(){
 get_clints();
@@ -39,7 +42,6 @@ update();
 
       for (int i = 0; i < data.length; i++) {
         Clints.add(Client_Model.fromJson(data[i]));
-        print(Client_Model.fromJson(data[i]).contact);
         update();
       }
 
@@ -54,7 +56,7 @@ update();
     print('pass2');
    try {
       final response = await supabase.from('Client').select(
-          'client_id,name,email,phone,Contact,quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
+          'client_id,name,email,phone,Contact,quote(id,ui,des,date,total,status,is_original,original_id,discount,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))');
       final List<dynamic> data = response as List<dynamic>;
       print('pass3');
       for (int i = 0; i < data.length; i++) {
@@ -81,20 +83,20 @@ update();
   }
 
   get_quotes()async{
-    Quotations=[];
+    Quotations_main=[];
   try  {
       final response =
-      await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval)');
+      await supabase.from('quote').select('id,ui,des,date,total,status,is_original,original_id,discount,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval)');
 
       final List<dynamic> data = response as List<dynamic>;
 
       for (int i = 0; i < data.length; i++) {
-        Quotations.add(Quotation_Model.fromjson(data[i]));
+        Quotations_main.add(Quotation_Model.fromjson(data[i]));
 
         update();
       }
       update();
-      print("Quotations => " + Quotations.length.toString());
+      print("Quotations => " + Quotations_main.length.toString());
     }catch(e){
     print(e);
   }
@@ -102,7 +104,7 @@ update();
   get_users()async{
 
     Users=[];
-    final response=await supabase.from('users').select('email,name,admin,id,Department');
+    final response=await supabase.from('users').select('email,name,admin,id,Department,pass');
     final List<dynamic> data = response as List<dynamic>;
     for(int i =0;i<data.length;i++){
       Users.add(User_model.fromjson(data[i]));
@@ -136,7 +138,7 @@ update();
   quote_requ()async{
     quote_Request=[];
     try{
-      final response = await supabase.from('quote_requ').select('id,comment,approval,users(id,name,email,admin,Department),quote(id,ui,des,date,total,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))').eq('approval', false);
+      final response = await supabase.from('quote_requ').select('id,comment,approval,users(id,name,email,admin,Department,pass),quote(id,ui,des,date,total,discount,status,is_original,original_id,Client(client_id,name,email,phone,Contact),account_manger(manger_id,name,email,phone),items(id,item,price,quantity),quote_requ(approval))').eq('approval', false);
       final List<dynamic> data = response as List<dynamic>;
       for(int i =0;i<data.length;i++){
         quote_Request.add(quotation_Request_Model.fromjson(data[i]));
@@ -155,10 +157,17 @@ update();
 
   }
   get_total_quote(List price,List quantity,bool Update){
+
     total_quote_in_reivew=0.0;
-    total_quote_in_reivew=IterableZip([price, quantity])
+    subtotal_quote_in_reivew=0.0;
+    subtotal_quote_in_reivew=IterableZip([price, quantity])
         .map((list) => list[0] * list[1])
         .reduce((a, b) => a + b);
+    total_quote_in_reivew=IterableZip([price, quantity])
+        .map((list) => list[0] * list[1])
+        .reduce((a, b) => a + b)-((IterableZip([price, quantity])
+        .map((list) => list[0] * list[1])
+        .reduce((a, b) => a + b))*(discount/100));
    Update? update():(){};
   }
   update_table_ui(List <int> ui,{bool Update=false}){

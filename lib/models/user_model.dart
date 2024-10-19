@@ -4,6 +4,7 @@ class User_model{
   String name;
   String email;
   String Department;
+  String pass;
   bool admin;
 
 
@@ -14,6 +15,7 @@ class User_model{
         required this.Department,
         required this.name,
         required this.email,
+        required this.pass,
         required this.admin,
 
 
@@ -24,6 +26,7 @@ class User_model{
     name: map['name'],
     email: map['email'].toString(),
     admin: map['admin'],
+    pass: map['pass'],
     Department:  map['Department'],
 
 
@@ -34,6 +37,7 @@ class User_model{
       'name':name,
       'email':email,
       'admin':admin,
+      'pass':pass,
       'Department':Department,
 
 

@@ -20,6 +20,7 @@ View_quote_requ(this.quotation);
 }
 
 class _View_quote_requState extends State<View_quote_requ> {
+  bool loding=false;
   quotation_Request_Model quotation;
 
   _View_quote_requState(this.quotation);
@@ -46,53 +47,71 @@ class _View_quote_requState extends State<View_quote_requ> {
 
         body: SingleChildScrollView(
           child: Column(
+
             children: [
+
               Column(
                 children: [
-                  Quotation_item(quotation.quotation, h, controller, quotation.quotation.ui),
+                  Column(
+                    children: [
+                      Quotation_item(quotation.quotation, h, quotation.quotation.ui),
+                    ],
+                  ),
+                  SizedBox(width: 10,),
+                  Divider(),
+                  SizedBox(width: 10,),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment:     MainAxisAlignment.spaceEvenly,
+                      children:controller.current_user.admin? [
+                          ElevatedButton(onPressed: (){
+                          approval(controller);
+                        }, child: Text('Approve')),
+
+
+                          ElevatedButton(onPressed: (){
+                          generateAndDownloadPdf(New_Quotation_Model(quotation: quotation.quotation, ui: quotation.quotation.ui), h, true,controller);
+                        }, child: Text('Download')),
+
+                        ElevatedButton(onPressed: (){
+                          edit(controller, quotation.quotation);
+                        }, child: Text('Edit')),
+
+                        ElevatedButton(onPressed: (){
+                          edit(controller, quotation.quotation);
+                        }, child: Text('Delete')),
+                      ]:[
+
+
+                  ElevatedButton(onPressed: (){
+                    edit(controller, quotation.quotation);
+                  }, child: Text('Edit')),
+
+                  ElevatedButton(onPressed: (){
+                    Delete(controller, quotation.quotation);
+                  }, child: Text('Delete')),
+                ],
+                    ),
+                  )
+
                 ],
               ),
-              SizedBox(width: 10,),
-              Divider(),
-              SizedBox(width: 10,),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment:     MainAxisAlignment.spaceEvenly,
-                  children:controller.current_user.admin? [
-                      ElevatedButton(onPressed: (){
-                      approval(controller);
-                    }, child: Text('Approve')),
-
-
-                      ElevatedButton(onPressed: (){
-                      generateAndDownloadPdf(New_Quotation_Model(quotation: quotation.quotation, ui: quotation.quotation.ui), h, true,controller);
-                    }, child: Text('Download')),
-
-                    ElevatedButton(onPressed: (){
-                      edit(controller, quotation.quotation);
-                    }, child: Text('Edit')),
-
-                    ElevatedButton(onPressed: (){
-                      edit(controller, quotation.quotation);
-                    }, child: Text('Delete')),
-                  ]:[
-
-
-              ElevatedButton(onPressed: (){
-                edit(controller, quotation.quotation);
-              }, child: Text('Edit')),
-
-              ElevatedButton(onPressed: (){
-                Delete(controller, quotation.quotation);
-              }, child: Text('Delete')),
-            ],
-                ),
-              )
-
+              loding?loading(h,w):SizedBox(),
             ],
           ),
         ),
+      ),
+    );
+  }
+  Widget loading(h,w){
+    return Container(
+      color: Colors.grey.shade100.withOpacity(0.5),
+      height: h+100,width: w,
+      padding: EdgeInsets.symmetric(horizontal: (w/2)-100,vertical:(w/2)-100 ),
+
+      child: Center(
+        child: CircularProgressIndicator(color: Colors.yellow,),
       ),
     );
   }
@@ -142,17 +161,22 @@ class _View_quote_requState extends State<View_quote_requ> {
   }
   Delete(Data_controller controller,Quotation_Model quotation)async{
     try{
-      await supabase
-          .from('quote_requ').delete()
-          .eq('quote', quotation.id)
-          .select().then((value)async {
-        await supabase
-            .from('quote').delete()
-            .eq('id', quotation.id)
-            .select();
-            controller.quote_requ();
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+      setState(() {
+        loding=true;
       });
+      print('pass1');
+
+      await supabase.from('items').delete().eq('quote_id',quotation.id).select();
+      print('pass2');
+      await supabase.from('quote_requ').delete().eq('quote',quotation.id).select();
+      print('pass3');
+
+      await supabase.from('quote').delete().eq('id',quotation.id).select();
+      print('pass4');
+      setState(() {
+        loding=false;
+      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
     }catch(e){
       print(e);
     }

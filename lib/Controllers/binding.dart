@@ -10,7 +10,7 @@ class Bindingg extends Bindings{
     // Get.lazyPut<HomeNav>(() => HomeNav());
 
     // Get.lazyPut<Data_controller>(() => Data_controller());
-    Get.put(Data_controller());
+   Get.put(Data_controller());
 
 
 

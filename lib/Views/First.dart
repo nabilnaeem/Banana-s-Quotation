@@ -44,7 +44,7 @@ class _FirstState extends State<First> {
                 child: Hero(
                   tag: 'logo',
                     child: Image(image: AssetImage('images/logo.png')))),
-            Text("Wellcome",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),
+            Text("Welcome",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),
             SizedBox(height: 20,),
             CircularProgressIndicator(color: Colors.black87,),
           ],

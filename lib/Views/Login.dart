@@ -84,7 +84,7 @@ class _LoginState extends State<Login> {
 
                         children: [
 
-                         Text(' Top Management Access Only ',style: TextStyle(
+                         Text( "Banana's System" ,style: TextStyle(
                            fontSize: w/35,
                            fontWeight: FontWeight.bold
                          ),),

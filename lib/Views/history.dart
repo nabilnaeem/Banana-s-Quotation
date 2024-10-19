@@ -1,14 +1,11 @@
-import 'dart:html';
 
-import 'package:banana/Controllers/Data%20controller.dart';
 import 'package:banana/Controllers/widgets.dart';
 import 'package:banana/Views/preview.dart';
-import 'package:banana/models/account%20manger%20model.dart';
-import 'package:banana/models/cinet%20model.dart';
 import 'package:banana/models/item%20model.dart';
+
 import 'package:banana/models/quote%20model.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 
 class History extends StatefulWidget {
   List<Quotation_Model> Quotations;
@@ -26,16 +23,19 @@ class _HistoryState extends State<History> {
   List Search_by=['Description','Client','status','Account Manger'];
 
 
-  List<Quotation_Model> Quotations;
+  List<Quotation_Model> quotations;
 
-  _HistoryState(this.Quotations);
-
+  _HistoryState(this.quotations);
+  List<Quotation_Model> Quotations=[];
   DateTime selectedDate_from=DateTime.now();
   DateTime selectedDate_to=DateTime.now();
+bool test=false;
 
   @override
   void initState() {
     // TODO: implement initState
+    Quotations = quotations.map((quotation) => quotation.copy()).toList();
+
 
 if(Quotations.length!=0){
   init();
@@ -59,374 +59,366 @@ if(Quotations.length!=0){
 
 
 
-    return GetBuilder<Data_controller>(
-
-      builder:(controller)=> Scaffold(
-        appBar: AppBar(
-          foregroundColor: Colors.black87,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text('History'),
-          centerTitle: true,
-          actions: [
-            Hero(
-              tag: 'logo',
-                child: Image(image: AssetImage('images/logo.png')))
-          ],
-        ),
-        body: Quotations.length!=0?SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-                      child: TextFormField(
-
-                        controller: search_input,
-                        onChanged: (e){
-                          setState(() {
-
-                          });
-                          // List <Quotation_Model>list=Quotations.toList().where((event) =>
-                          // event.time.isAfter(selectedDate_from.subtract(Duration(seconds: 1))) &&
-                          //     event.time.isBefore(selectedDate_to.add(Duration(days: 1)))&& event.status.toLowerCase().contains(radioo[radio]=='All'?'':radioo[radio]))  .toList();
-                          // setState(() {
-                          //   output=list.toList().where((i) {
-                          //     String title=search_by=='Description'?i.dec.toLowerCase():
-                          //     search_by=='Client'?i.client_model.name.toLowerCase():
-                          //     search_by=='status'?i.status.toLowerCase():
-                          //     search_by=='Account Manger'?i.account_manger_model.name.toLowerCase():'';
-                          //     String input=search_input.text.toLowerCase();
-                          //
-                          //     return title.contains(input);
-                          //   }).toList();
-                          //
-                          // });
-
-                        },
-                        decoration: InputDecoration(
-                          hintText:'Search by Client , Description or Account manger ',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)
-                          )
-                        ),
-                      ),
-                    )),
-
-                  ],
-                ),
-              ),
-              w<700? Column(
+    return Scaffold(
+      appBar: AppBar(
+        foregroundColor: Colors.black87,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('History'),
+        centerTitle: true,
+        actions: [
+          Hero(
+            tag: 'logo',
+              child: Image(image: AssetImage('images/logo.png')))
+        ],
+      ),
+      body:test?Column(
+        children:Quotations.map((e) => ListTile(
+          onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(
+                true,
+               [New_Quotation_Model(quotation: e, ui: e.ui)]
+            )));
+          },
+          title: Text(e.dec),)).toList() ,
+      ): Quotations.length!=0?SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RadioListTile(
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                    child: TextFormField(
 
-                          activeColor: Colors.black,
-                          title: Text('All'),
-                            value: 0, groupValue: radio, onChanged: (e){
-                          setState(() {
-                            radio=e!;
-                          });
-                        }),
+                      controller: search_input,
+                      onChanged: (e){
+                        setState(() {
+
+                        });
+
+
+                      },
+                      decoration: InputDecoration(
+                        hintText:'Search by Client , Description or Account manger ',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)
+                        )
                       ),
-                      Expanded(
-                        child: RadioListTile(
-                            activeColor: Colors.green,
-                          title: Text('Active'),
-                            value: 1, groupValue: radio, onChanged: (e){
-                          setState(() {
-                            radio=e!;
-                          });
-                        }),
-                      ),
+                    ),
+                  )),
 
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RadioListTile(
-                            activeColor: Colors.orange,
-                            title: Text('Pending'),
-                            value: 2, groupValue: radio, onChanged: (e){
-                          setState(() {
-                            radio=e!;
-                            // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
-
-                          });
-                        }),
-                      ),
-                      Expanded(
-                        child: RadioListTile(
-                            activeColor: Colors.red,
-                            title: Text('Cancelled'),
-                            value: 3, groupValue: radio, onChanged: (e){
-                          setState(() {
-                            radio=e!;
-                            // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
-
-                          });
-                        }),
-                      ),
-
-                    ],
-                  ),
                 ],
-              ):
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile(
+              ),
+            ),
+            w<700? Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile(
 
                         activeColor: Colors.black,
                         title: Text('All'),
-                        value: 0, groupValue: radio, onChanged: (e){
-                      setState(() {
-                        radio=e!;
-                      });
-                    }),
-                  ),
-                  Expanded(
-                    child: RadioListTile(
-                        activeColor: Colors.green,
+                          value: 0, groupValue: radio, onChanged: (e){
+                        setState(() {
+                          radio=e!;
+                        });
+                      }),
+                    ),
+                    Expanded(
+                      child: RadioListTile(
+                          activeColor: Colors.green,
                         title: Text('Active'),
-                        value: 1, groupValue: radio, onChanged: (e){
-                      setState(() {
-                        radio=e!;
-                      });
-                    }),
-                  ),
-                  Expanded(
-                    child: RadioListTile(
-                        activeColor: Colors.orange,
-                        title: Text('Pending'),
-                        value: 2, groupValue: radio, onChanged: (e){
-                      setState(() {
-                        radio=e!;
-                        // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
-
-                      });
-                    }),
-                  ),
-                  Expanded(
-                    child: RadioListTile(
-                        activeColor: Colors.red,
-                        title: Text('Cancelled'),
-                        value: 3, groupValue: radio, onChanged: (e){
-                      setState(() {
-                        radio=e!;
-                        // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
-
-                      });
-                    }),
-                  ),
-
-                ],
-              ),
-              Container(
-                child:w>700? Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            selectedDate_from == null
-                                ? 'Select a date from : '
-                                : 'Selected Date from :  ${selectedDate_from!.day}/${selectedDate_from!.month}/${selectedDate_from!.year}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-
-                          ),
-                          SizedBox(height: 20.0),
-                          IconButton(onPressed: ()async{
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate_from ?? DateTime.now(),
-                              firstDate: DateTime(2015, 8),
-                              lastDate: DateTime(2101),
-                            );
-                            if (picked != null ) {
-                              setState(() {
-                                selectedDate_from = picked;
-                             
-                              });
-
-                            }
-                          }, icon: Icon(Icons.date_range)),
-
-                        ],
-                      ),
+                          value: 1, groupValue: radio, onChanged: (e){
+                        setState(() {
+                          radio=e!;
+                        });
+                      }),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            selectedDate_to == null
-                                ? 'Select a date to : '
-                                : 'Selected Date to :  ${selectedDate_to!.day}/${selectedDate_to!.month}/${selectedDate_to!.year}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
 
-                          ),
-                          SizedBox(height: 20.0),
-                          IconButton(onPressed: ()async{
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate_to ?? DateTime.now(),
-                              firstDate: DateTime(2015, 8),
-                              lastDate: DateTime(2101),
-                            );
-                            if (picked != null ) {
-                              setState(() {
-                                selectedDate_to = picked;
-                               
-                              });
-                            }
-                          }, icon: Icon(Icons.date_range)),
 
-                        ],
-                      ),
-                    ),
-                  ],
-                ):
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            selectedDate_from == null
-                                ? 'Select a date from : '
-                                : 'Selected Date from :  ${selectedDate_from!.day}/${selectedDate_from!.month}/${selectedDate_from!.year}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-
-                          ),
-                          SizedBox(height: 20.0),
-                          IconButton(onPressed: ()async{
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate_from ?? DateTime.now(),
-                              firstDate: DateTime(2015, 8),
-                              lastDate: DateTime(2101),
-                            );
-                            if (picked != null ) {
-                              setState(() {
-                                selectedDate_from = picked;
-                                // output = Quotations.toList().where((event) =>
-                                // event.time.isAfter(selectedDate_from.subtract(Duration(seconds: 1))) &&
-                                //     event.time.isBefore(selectedDate_to.add(Duration(days: 1)))).toList();
-                                //
-                              });
-
-                            }
-                          }, icon: Icon(Icons.date_range)),
-
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            selectedDate_to == null
-                                ? 'Select a date to : '
-                                : 'Selected Date to :  ${selectedDate_to!.day}/${selectedDate_to!.month}/${selectedDate_to!.year}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-
-                          ),
-                          SizedBox(height: 20.0),
-                          IconButton(onPressed: ()async{
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate_to ?? DateTime.now(),
-                              firstDate: DateTime(2015, 8),
-                              lastDate: DateTime(2101),
-                            );
-                            if (picked != null ) {
-                              setState(() {
-                                selectedDate_to = picked;
-                                // output = Quotations.toList().where((event) =>
-                                // event.time.isAfter(selectedDate_from.subtract(Duration(seconds: 1))) &&
-                                //     event.time.isBefore(selectedDate_to.add(Duration(days: 1)))).toList();
-                                //
-                              });
-                            }
-                          }, icon: Icon(Icons.date_range)),
-
-                        ],
-                      ),
-                    ),
                   ],
                 ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile(
+                          activeColor: Colors.orange,
+                          title: Text('Pending'),
+                          value: 2, groupValue: radio, onChanged: (e){
+                        setState(() {
+                          radio=e!;
+                          // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
 
+                        });
+                      }),
+                    ),
+                    Expanded(
+                      child: RadioListTile(
+                          activeColor: Colors.red,
+                          title: Text('Cancelled'),
+                          value: 3, groupValue: radio, onChanged: (e){
+                        setState(() {
+                          radio=e!;
+                          // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
+
+                        });
+                      }),
+                    ),
+
+                  ],
+                ),
+              ],
+            ): Row(
+              children: [
+                Expanded(
+                  child: RadioListTile(
+
+                      activeColor: Colors.black,
+                      title: Text('All'),
+                      value: 0, groupValue: radio, onChanged: (e){
+                    setState(() {
+                      radio=e!;
+                    });
+                  }),
+                ),
+                Expanded(
+                  child: RadioListTile(
+                      activeColor: Colors.green,
+                      title: Text('Active'),
+                      value: 1, groupValue: radio, onChanged: (e){
+                    setState(() {
+                      radio=e!;
+                    });
+                  }),
+                ),
+                Expanded(
+                  child: RadioListTile(
+                      activeColor: Colors.orange,
+                      title: Text('Pending'),
+                      value: 2, groupValue: radio, onChanged: (e){
+                    setState(() {
+                      radio=e!;
+                      // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
+
+                    });
+                  }),
+                ),
+                Expanded(
+                  child: RadioListTile(
+                      activeColor: Colors.red,
+                      title: Text('Cancelled'),
+                      value: 3, groupValue: radio, onChanged: (e){
+                    setState(() {
+                      radio=e!;
+                      // output=Quotations.toList().where((element) => element.status==radioo[radio]).toList();
+
+                    });
+                  }),
+                ),
+
+              ],
+            ),
+            Container(
+              child:w>700? Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedDate_from == null
+                              ? 'Select a date from : '
+                              : 'Selected Date from :  ${selectedDate_from!.day}/${selectedDate_from!.month}/${selectedDate_from!.year}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+
+                        ),
+                        SizedBox(height: 20.0),
+                        IconButton(onPressed: ()async{
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate_from ?? DateTime.now(),
+                            firstDate: DateTime(2015, 8),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null ) {
+                            setState(() {
+                              selectedDate_from = picked;
+
+                            });
+
+                          }
+                        }, icon: Icon(Icons.date_range)),
+
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedDate_to == null
+                              ? 'Select a date to : '
+                              : 'Selected Date to :  ${selectedDate_to!.day}/${selectedDate_to!.month}/${selectedDate_to!.year}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+
+                        ),
+                        SizedBox(height: 20.0),
+                        IconButton(onPressed: ()async{
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate_to ?? DateTime.now(),
+                            firstDate: DateTime(2015, 8),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null ) {
+                            setState(() {
+                              selectedDate_to = picked;
+
+                            });
+                          }
+                        }, icon: Icon(Icons.date_range)),
+
+                      ],
+                    ),
+                  ),
+                ],
+              ):
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedDate_from == null
+                              ? 'Select a date from : '
+                              : 'Selected Date from :  ${selectedDate_from!.day}/${selectedDate_from!.month}/${selectedDate_from!.year}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+
+                        ),
+                        SizedBox(height: 20.0),
+                        IconButton(onPressed: ()async{
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate_from ?? DateTime.now(),
+                            firstDate: DateTime(2015, 8),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null ) {
+                            setState(() {
+                              selectedDate_from = picked;
+                              // output = Quotations.toList().where((event) =>
+                              // event.time.isAfter(selectedDate_from.subtract(Duration(seconds: 1))) &&
+                              //     event.time.isBefore(selectedDate_to.add(Duration(days: 1)))).toList();
+                              //
+                            });
+
+                          }
+                        }, icon: Icon(Icons.date_range)),
+
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedDate_to == null
+                              ? 'Select a date to : '
+                              : 'Selected Date to :  ${selectedDate_to!.day}/${selectedDate_to!.month}/${selectedDate_to!.year}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+
+                        ),
+                        SizedBox(height: 20.0),
+                        IconButton(onPressed: ()async{
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate_to ?? DateTime.now(),
+                            firstDate: DateTime(2015, 8),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null ) {
+                            setState(() {
+                              selectedDate_to = picked;
+                              // output = Quotations.toList().where((event) =>
+                              // event.time.isAfter(selectedDate_from.subtract(Duration(seconds: 1))) &&
+                              //     event.time.isBefore(selectedDate_to.add(Duration(days: 1)))).toList();
+                              //
+                            });
+                          }
+                        }, icon: Icon(Icons.date_range)),
+
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(
-                height: (((w/get_width_length(w))/0.707070)*((filterEvents().length<get_width_length(w)?get_width_length(w):filterEvents().length)/get_width_length(w)).ceil())+100,
-                child: GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
 
-                  padding: EdgeInsets.all(20),
-                  itemCount: filterEvents().length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: get_width_length(w),mainAxisSpacing: 10,crossAxisSpacing: 10,childAspectRatio: 0.7),
-                    itemBuilder: (_,i){
-                    List <Quotation_Model> quotes=get_quotes_updates(filterEvents()[i]);
-                    int edits=Quotations.where((element) => element.original_id==filterEvents()[i].id).toList().length;
-                    return InkWell(
-                      onTap: (){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(
-                            true,
-                            quotes.map((e) => New_Quotation_Model(quotation: e, ui: e.ui)).toList()
-                        )));
-                      },
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50,controller,filterEvents()[i].ui),
-                              Container(
-                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+            ),
+            SizedBox(
+              height: (((w/get_width_length(w))/0.707070)*((filterEvents().length<get_width_length(w)?get_width_length(w):filterEvents().length)/get_width_length(w)).ceil())+100,
+              child: GridView.builder(
+                physics: NeverScrollableScrollPhysics(),
+
+                padding: EdgeInsets.all(20),
+                itemCount: filterEvents().length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: get_width_length(w),mainAxisSpacing: 10,crossAxisSpacing: 10,childAspectRatio: 0.7),
+                  itemBuilder: (_,i){
+                  List <Quotation_Model> quotes=get_quotes_updates(filterEvents()[i]);
+                  int edits=Quotations.where((element) => element.original_id==filterEvents()[i].id).toList().length;
+                  return InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (c)=>QuotePdf(
+                          true,
+                          quotes.map((e) => New_Quotation_Model(quotation: e, ui: e.ui)).toList()
+                      )));
+                    },
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Quotation_item(filterEvents()[i],((w/get_width_length(w))/0.707070)-50,filterEvents()[i].ui),
+                            Container(
+                                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                                decoration: BoxDecoration(
+                                    color: Colors.black87,
+                                    borderRadius: BorderRadius.circular(100)
+                                ),
+                                child: Text(filterEvents()[i].status,style: TextStyle(fontSize:10,color: get_color(filterEvents()[i].status),fontWeight: FontWeight.bold),)),
+                            edits==0?SizedBox():
+                            Positioned(
+                              top: 2,right: 2,
+                              child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
                                   decoration: BoxDecoration(
                                       color: Colors.black87,
                                       borderRadius: BorderRadius.circular(100)
                                   ),
-                                  child: Text(filterEvents()[i].status,style: TextStyle(fontSize:10,color: get_color(filterEvents()[i].status),fontWeight: FontWeight.bold),)),
-                              edits==0?SizedBox():
-                              Positioned(
-                                top: 2,right: 2,
-                                child: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-                                    decoration: BoxDecoration(
-                                        color: Colors.black87,
-                                        borderRadius: BorderRadius.circular(100)
-                                    ),
-                                    child: Text('${edits.toString()}${edits==1? ' update':' updates'}',style: TextStyle(fontSize:10,color: Colors.blue,fontWeight: FontWeight.bold),)),
-                              ),
+                                  child: Text('${edits.toString()}${edits==1? ' update':' updates'}',style: TextStyle(fontSize:10,color: Colors.blue,fontWeight: FontWeight.bold),)),
+                            ),
 
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Text('${filterEvents()[i].client_model.name} / ${filterEvents()[i].dec}',style: TextStyle(fontWeight: FontWeight.w600,fontSize: h/100),),
-                          )
-                        ],
-                      ),
-                    );
-                }),
-              ),
-            ],
-          ),
-        ):Center(child: Text('Empty'),),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Text('${filterEvents()[i].client_model.name} / ${filterEvents()[i].dec}',style: TextStyle(fontWeight: FontWeight.w600,fontSize: w/150),),
+                        )
+                      ],
+                    ),
+                  );
+              }),
+            ),
+          ],
+        ),
+      )
+          :Center(child: Text('Empty'),),
 
-      ),
     );
   }
 

@@ -39,6 +39,7 @@ class _New_QuoteState extends State<New_Quote> {
   TextEditingController contact=TextEditingController();
   TextEditingController e_mail=TextEditingController();
   TextEditingController phone=TextEditingController();
+  TextEditingController discount=TextEditingController();
   List <TextEditingController> item=[];
   List <TextEditingController> quantity=[];
   List <TextEditingController> price=[];
@@ -46,7 +47,7 @@ class _New_QuoteState extends State<New_Quote> {
   var account_manger ;
   DateTime selectedDate=DateTime.now();
   final supabase=Supabase.instance.client;
-List <Item_Model> items=[];
+
   Quotation_Model quotation;
   Data_controller data;
   bool update;
@@ -76,6 +77,7 @@ have_account_manager=true;
   }
   edit_quote(){
 
+discount.text=quotation.discount.toString();
     item=List.generate(quotation.items.length, (index) => TextEditingController());
     quantity=List.generate(item.length, (index) => TextEditingController());
     price=List.generate(item.length, (index) => TextEditingController());
@@ -111,19 +113,16 @@ have_account_manager=true;
           onTap: (){
                 if(!dec.text.isEmpty||!client.isBlank||!account_manger.isBlank){
                     Quotation_Model quotaion_model = Quotation_Model(
+                      discount: discount.text.isEmpty?0:double.parse(discount.text),
                         ui: ui,
-                        is_original: !update,
-                        original_id: update
-                            ? quotation.is_original
-                                ? quotation.id
-                                : quotation.original_id
-                            : '',
+                        is_original: update?false:edit?quotation.is_original:true,
+                        original_id: update ? quotation.is_original ? quotation.id : quotation.original_id : '',
                         id: quotation.id,
                         dec: dec.text,
                         client_model: client,
                         time: selectedDate,
                         account_manger_model: account_manger,
-                        total: controller.total_quote_in_reivew,
+                        total: controller.subtotal_quote_in_reivew,
                         items: controller.Table_Items);
 
                     Navigator.of(context).push(MaterialPageRoute(
@@ -238,7 +237,7 @@ have_account_manager=true;
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                     child: Row(
                                       children: [
-                                      Text('Contct :',style: TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('Contact :',style: TextStyle(fontWeight: FontWeight.bold),),
                                         SizedBox(width: 10,),
                                         Text(client==null?'choose client':client.contact),
 
@@ -249,7 +248,7 @@ have_account_manager=true;
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       children: [
-                                      Text('E_mail :',style: TextStyle(fontWeight: FontWeight.bold),),
+                                      Text('E-mail :',style: TextStyle(fontWeight: FontWeight.bold),),
                                         SizedBox(width: 10,),
                                         Text(client==null?'choose client':client.e_mail),
 
@@ -329,6 +328,9 @@ have_account_manager=true;
                                             height: 45,
 
                                               child: TextFormField(
+                                                onChanged: (i){
+                                                  quotation.dec=dec.text;
+                                                },
                                                 textAlign: TextAlign.center,
                                                 controller: dec,
                                                 decoration: InputDecoration(
@@ -394,7 +396,7 @@ have_account_manager=true;
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                     child: Row(
                                       children: [
-                                        Text('Contct :',style: TextStyle(fontWeight: FontWeight.bold),),
+                                        Text('Contact :',style: TextStyle(fontWeight: FontWeight.bold),),
                                         SizedBox(width: 10,),
                                         Text(client==null?'choose client':client.contact),
 
@@ -405,7 +407,7 @@ have_account_manager=true;
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       children: [
-                                        Text('E_mail :',style: TextStyle(fontWeight: FontWeight.bold),),
+                                        Text('E-mail :',style: TextStyle(fontWeight: FontWeight.bold),),
                                         SizedBox(width: 10,),
                                         Text(client==null?'choose client':client.e_mail),
 
@@ -532,17 +534,82 @@ have_account_manager=true;
                     SizedBox(
                       width: w,
                         height: h/2,
-                        child: My_Table(New_Quotation_Model(quotation: quotation, ui: quotation.ui),controller,h,edit: true,)),
+                        child: My_Table(quotation,controller,h,quotation.items,edit: true,)),
                   ],
                 ),
                 Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('Total :',style: TextStyle(fontWeight: FontWeight.bold),),
-                    SizedBox(width: 20,),
-                    Text(controller.total_quote_in_reivew.toString(),style: TextStyle(fontWeight: FontWeight.bold))
-                  ],
+                SizedBox(
+                  height: h/18,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                        decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text('Discount :',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
+                            SizedBox(width: 20,),
+                            SizedBox(width: w/3,child: TextFormField(
+                              onChanged: (i){
+                                controller.discount=discount.text.isEmpty?0:double.parse(i.toString());
+                                controller.update_table_items(quotation.items);
+                                controller.update_table_ui(quotation.ui);
+                                controller.get_total_quote(controller.Table_Items.map((e) => e.price).toList(), controller.Table_Items.map((e) => e.quantity).toList(), true);
+
+
+                              },
+
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              inputFormatters: <TextInputFormatter>[
+                                DecimalInputFormatter(), // Allow numbers with a decimal point
+                              ],
+
+
+                              cursorColor: Colors.white,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                suffixIcon: Icon(Icons.percent,color: Colors.white,),
+                                hintText: 'Enter discount percentage',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withOpacity(0.5)
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderSide: BorderSide.none
+                                  )
+
+                              ),
+                              controller: discount,
+                            ),)
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: w/10,),
+                      Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text('Total :',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),),
+                            SizedBox(width: 40,),
+                            Text(((controller.total_quote_in_reivew)-(controller.total_quote_in_reivew*(quotation.discount/100))).toString(),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white))
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
                 ),
                 Divider(),
                 SizedBox(height: h/10,)

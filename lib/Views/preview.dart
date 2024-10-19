@@ -66,7 +66,7 @@ bool loding=false;
   void initState() {
     // TODO: implement initState
  quotation.sort((a, b) => b.quotation.time.compareTo(a.quotation.time));
- print(quotation[0].quotation.client_model.tojson());
+
 
   }
   @override
@@ -103,7 +103,7 @@ bool loding=false;
                         ),
 
 
-                        child:Quotation_item(quotation[i].quotation, h, controller, quotation[i].ui),
+                        child:Quotation_item(quotation[i].quotation.copy(), h, quotation[i].ui),
                       ),
                       quotation[i].quotation.is_original?  Positioned(
 
@@ -151,7 +151,7 @@ bool loding=false;
     ));
   }
   Widget theme_pop_up(int index,Data_controller controller){
-    List items1=['Copy & Update','edit','Download','Active','Cancel'];
+    List items1=['Copy & Update','edit','Download','Active','Cancel','Delete'];
     List items2=['Copy & Update','Download'];
     List items=controller.current_user.admin?items1:items2;
     return PopupMenuButton(
@@ -169,6 +169,8 @@ bool loding=false;
             case 'Active':on_change_status('Active',controller,index);
             break;
             case 'Cancel':on_change_status('Cancelled',controller,index);
+            break;
+            case 'Delete':delet_quote(controller);
 
           }
         },
@@ -201,8 +203,8 @@ on_download(i,controller){
     // }catch(e){
     //   print(e);
     // }
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>New_Quote(quotation[index].quotation, false, controller, quotation[index].quotation.ui,edit: true,)));
-    print(true);
+    Navigator.of(context).push(MaterialPageRoute(builder: (c)=>New_Quote(quotation[index].quotation, false, controller, quotation[index].quotation.ui,edit: true,)));
+
   }
 on_change_status(String status,controller,i)async{
 
@@ -319,7 +321,7 @@ on_change_status(String status,controller,i)async{
         final data=  await supabase.from('quote').select('*').eq('id', quotation[0].quotation.id).select('quote_requ(id)');
        print('4');
        print(data);
-       await supabase.from('quote_requ').update({'approval': true}).eq('id', data[0]['quote_requ'][0]['id']).select();
+       await supabase.from('quote_requ').update({'approval': controller.current_user.admin}).eq('id', data[0]['quote_requ'][0]['id']).select();
        print('5');
      }
      for(int i =0;i<remove_list.length;i++){
@@ -329,6 +331,7 @@ on_change_status(String status,controller,i)async{
       setState(() {
         loding=false;
       });
+      generateAndDownloadPdf(quotation[0],620,controller.current_user.admin,controller);
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
      controller.current_user.admin?(){}: pop_up_dialog('Waiting for admin approval..', 'Done', context, false);
 
@@ -338,11 +341,42 @@ on_change_status(String status,controller,i)async{
         loding=false;
       });
     }
-    generateAndDownloadPdf(quotation[0],620,controller.current_user.admin,controller);
+
 
 
   }
+  Future delet_quote(Data_controller controller)async{
+    quotation[0].quotation.ui=quotation[0].ui;
 
+    try{
+      setState(() {
+        loding=true;
+      });
+      print('pass1');
+
+      await supabase.from('items').delete().eq('quote_id',quotation[0].quotation.id).select();
+      print('pass2');
+      await supabase.from('quote_requ').delete().eq('quote',quotation[0].quotation.id).select();
+      print('pass3');
+
+      await supabase.from('quote').delete().eq('id', quotation[0].quotation.id).select();
+      print('pass4');
+      setState(() {
+        loding=false;
+      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (c)=>Home()));
+      controller.current_user.admin?(){}: pop_up_dialog('Waiting for admin approval..', 'Done', context, false);
+
+    }catch(e){
+      print(e);
+      setState(() {
+        loding=false;
+      });
+    }
+
+
+
+  }
  Widget floating_widget(Data_controller controller) {
   Widget widget=SizedBox();
   if(edit || !update){
@@ -377,6 +411,7 @@ Widget loading(h,w){
   );
 }
 }
+
 
 
 
@@ -481,264 +516,346 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_
               ),
             ),
 
-      pw.Padding(
-        padding: pw.EdgeInsets.only(top: h / 30, bottom: 0, right: h / 18, left: h / 18),
-        child: pw.Column(
-          children: quotation.ui.asMap().map((key, value) {
-             sum = key == 0 ? 0 : sum + quotation.ui[key - 1];
+            pw.Padding(
+              padding: pw.EdgeInsets.only(top: h / 30, bottom: 0, right: h / 18, left: h / 18),
+              child: pw.Column(
+                children: quotation.ui.asMap().map((key, value) {
+                  sum = key == 0 ? 0 : sum + quotation.ui[key - 1];
 
-            return MapEntry(
-              key,
-              key == 0
-                  ? pw.Table(
-                border: pw.TableBorder.symmetric(
-                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                ),
-                columnWidths: {
-                  0: pw.FlexColumnWidth(6),
-                  1: pw.FlexColumnWidth(4),
-                  2: pw.FlexColumnWidth(4),
-
-                },
-                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Center(
-                        child: pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 90),
-                          child: pw.Text('Item', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                        ),
-                      ),
-                      pw.Center(
-                        child: pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 90),
-                          child: pw.Text('Quantity', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                        ),
-                      ),
-                      pw.Center(
-                        child: pw.Padding(
-                          padding: pw.EdgeInsets.all(h / 90),
-                          child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  pw.TableRow(
-                    children: [
-                      pw.Table(
+                  return MapEntry(
+                      key,
+                      key == 0
+                          ? pw.Table(
                         border: pw.TableBorder.symmetric(
                           inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                           outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                         ),
-                        children: List.generate(
-                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
-                              (index) {
-                            final item = quotation.quotation.items[sum + index];
-                            return pw.TableRow(
-                              children: [
-                                pw.Padding(
-                                  padding: pw.EdgeInsets.all( h/150),
-                                  child: pw.Container(
-                                      alignment:pw. Alignment.center,
-                                    height: custom[index],
-                                      child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold))
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      pw.Table(
-                        border: pw.TableBorder.symmetric(
-                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                        ),
-                        children: List.generate(
-                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
-                              (index) {
-                            final item = quotation.quotation.items[sum + index];
-                            return pw.TableRow(
+                        columnWidths: {
+                          0: pw.FlexColumnWidth(6),
+                          1: pw.FlexColumnWidth(4),
+                          2: pw.FlexColumnWidth(4),
 
-                              children: [
-                                pw.Padding(
-                                  padding: pw.EdgeInsets.all( h/150),
-                                  child: pw.Container(
-                                    alignment:pw. Alignment.center,
-                                    height: custom[index],
-                                    child:pw. Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  )
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      pw.Center(
-                        child: pw.Text(
-            NumberFormat('#,##0').format(IterableZip([
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
-            NumberFormat('#,##0').format(IterableZip([
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) .toString()+" "+"EGP",
-                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-
-
-                    ],
-                  ),
-                ],
-              )
-                  : pw.Table(
-                border: pw.TableBorder.symmetric(
-                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                ),
-                columnWidths: {
-                  0: pw.FlexColumnWidth(6),
-                  1: pw.FlexColumnWidth(4),
-                  2: pw.FlexColumnWidth(4)
-                },
-                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.SizedBox(),
-                      pw.SizedBox(),
-                      pw.SizedBox(),
-                    ],
-                  ),
-                  pw.TableRow(
-                    children: [
-                      pw.Table(
-                        border: pw.TableBorder.symmetric(
-                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                        ),
-                        children: List.generate(
-                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
-                              (index) {
-                            final item = quotation.quotation.items[sum + index];
-                            return pw.TableRow(
-                              children: [
-                                pw.Padding(
-                                  padding:pw.EdgeInsets.all( h/150),
-                                  child: pw.Container(
-                                    alignment:pw. Alignment.center,
-                                    height: custom[sum + index],
-                                    child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  )
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      pw.Table(
-                        border: pw.TableBorder.symmetric(
-                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                        ),
-                        children: List.generate(
-                          quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
-                              (index) {
-                            final item = quotation.quotation.items[sum + index];
-                            return pw.TableRow(
-                              children: [
-                                pw.Padding(
-                                  padding: pw.EdgeInsets.all( h/150),
-                                  child: pw.Container(
-                                    alignment:pw. Alignment.center,
-                                    height: custom[sum + index],
-                                    child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                                  )
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      pw.Center(
-                        child: pw.Text(
-            NumberFormat('#,##0').format(IterableZip([
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
-            NumberFormat('#,##0').format(IterableZip([
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
-              quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
-            ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)).toString()+" "+"EGP",
-                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
-                        ),
-                      ),
-
-
-                    ],
-                  ),
-                ],
-              )
-            );
-          }).values.toList(),
-        ),
-      ),
-      pw.Padding(
-        padding: pw.EdgeInsets.only(top: 0, bottom: 10, right: h / 18, left: h / 18),
-        child: pw.Table(
-              border: pw.TableBorder.symmetric(
-                inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-              ),
-              columnWidths: {
-                0: pw.FlexColumnWidth(10),
-                1: pw.FlexColumnWidth(4),
-              },
-              defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-              children: [
-                pw.TableRow(
-                  children: [
-                    pw.SizedBox(),
-                    pw.SizedBox(),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                    pw.Table(
-                      border: pw.TableBorder.symmetric(
-                        inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                        outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
-                      ),
-                      children: [pw.TableRow(
+                        },
+                        defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
                         children: [
-                          pw.Center(
-                            child: pw.Padding(
-                              padding: pw.EdgeInsets.all(h / 85),
-                              child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
-                            ),
+                          pw.TableRow(
+                            children: [
+                              pw.Center(
+                                child: pw.Padding(
+                                  padding: pw.EdgeInsets.all(h / 90),
+                                  child: pw.Text('Item', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                ),
+                              ),
+                              pw.Center(
+                                child: pw.Padding(
+                                  padding: pw.EdgeInsets.all(h / 90),
+                                  child: pw.Text('Quantity', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                ),
+                              ),
+                              pw.Center(
+                                child: pw.Padding(
+                                  padding: pw.EdgeInsets.all(h / 90),
+                                  child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.TableRow(
+                            children: [
+                              pw.Table(
+                                border: pw.TableBorder.symmetric(
+                                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                ),
+                                children: List.generate(
+                                  quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                                      (index) {
+                                    final item = quotation.quotation.items[sum + index];
+                                    return pw.TableRow(
+                                      children: [
+                                        pw.Padding(
+                                          padding: pw.EdgeInsets.all( h/150),
+                                          child: pw.Container(
+                                              alignment:pw. Alignment.center,
+                                              height: custom[index],
+                                              child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold))
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              pw.Table(
+                                border: pw.TableBorder.symmetric(
+                                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                ),
+                                children: List.generate(
+                                  quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                                      (index) {
+                                    final item = quotation.quotation.items[sum + index];
+                                    return pw.TableRow(
+
+                                      children: [
+                                        pw.Padding(
+                                            padding: pw.EdgeInsets.all( h/150),
+                                            child: pw.Container(
+                                              alignment:pw. Alignment.center,
+                                              height: custom[index],
+                                              child:pw. Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                            )
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              pw.Center(
+                                child: pw.Text(
+                                  NumberFormat('#,##0').format(IterableZip([
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                                  ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
+                                  NumberFormat('#,##0').format(IterableZip([
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                                  ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) .toString()+" "+"EGP",
+                                  style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                                ),
+                              ),
+
+
+                            ],
                           ),
                         ],
-                      )],
-                    ),
+                      )
+                          : pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        columnWidths: {
+                          0: pw.FlexColumnWidth(6),
+                          1: pw.FlexColumnWidth(4),
+                          2: pw.FlexColumnWidth(4)
+                        },
+                        defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                        children: [
+                          pw.TableRow(
+                            children: [
+                              pw.SizedBox(),
+                              pw.SizedBox(),
+                              pw.SizedBox(),
+                            ],
+                          ),
+                          pw.TableRow(
+                            children: [
+                              pw.Table(
+                                border: pw.TableBorder.symmetric(
+                                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                ),
+                                children: List.generate(
+                                  quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                                      (index) {
+                                    final item = quotation.quotation.items[sum + index];
+                                    return pw.TableRow(
+                                      children: [
+                                        pw.Padding(
+                                            padding:pw.EdgeInsets.all( h/150),
+                                            child: pw.Container(
+                                              alignment:pw. Alignment.center,
+                                              height: custom[sum + index],
+                                              child: pw.Text(item.item, style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                            )
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              pw.Table(
+                                border: pw.TableBorder.symmetric(
+                                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                                ),
+                                children: List.generate(
+                                  quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).length,
+                                      (index) {
+                                    final item = quotation.quotation.items[sum + index];
+                                    return pw.TableRow(
+                                      children: [
+                                        pw.Padding(
+                                            padding: pw.EdgeInsets.all( h/150),
+                                            child: pw.Container(
+                                              alignment:pw. Alignment.center,
+                                              height: custom[sum + index],
+                                              child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                                            )
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              pw.Center(
+                                child: pw.Text(
+                                  NumberFormat('#,##0').format(IterableZip([
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                                  ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)) ==0?"F.O.C":
+                                  NumberFormat('#,##0').format(IterableZip([
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.quantity).toList(),
+                                    quotation.quotation.items.sublist(sum, sum + quotation.ui[key]).map((e) => e.price).toList(),
+                                  ] as Iterable<Iterable>).map((list) => list[0] * list[1]).reduce((a, b) => a + b)).toString()+" "+"EGP",
+                                  style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                                ),
+                              ),
 
-                    pw.Center(
-                      child: pw.Text(
-  NumberFormat('#,##0').format(quotation.quotation.total) ==0?"F.O.C":  NumberFormat('#,##0').format(quotation.quotation.total).toString()+" "+"EGP",
-                        style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
-                      ),
-                    ),
 
-
-                  ],
+                            ],
+                          ),
+                        ],
+                      )
+                  );
+                }).values.toList(),
+              ),
+            ),
+      quotation.quotation.discount!=0? pw.Padding(
+              padding: pw.EdgeInsets.only(top: 0, bottom: 0, right: h / 18, left: h / 18),
+              child: pw.Table(
+                border: pw.TableBorder.symmetric(
+                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
                 ),
-              ],
-            ),),///new
+                columnWidths: {
+                  0: pw.FlexColumnWidth(10),
+                  1: pw.FlexColumnWidth(4),
+                },
+                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                children: [
+                  pw.TableRow(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        children: [pw.TableRow(
+                          children: [
+                            pw.Center(
+                              child: pw.Padding(
+                                padding: pw.EdgeInsets.all(h / 85),
+                                child: pw.Text('SUBTOTAL', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        )],
+                      ),
 
-      pw.Row(
+                      pw.Center(
+                        child: pw.Text(
+                          NumberFormat('#,##0').format(quotation.quotation.total) ==0?"F.O.C":  NumberFormat('#,##0').format(quotation.quotation.total).toString()+" "+"EGP",
+                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ],
+              ),):pw.SizedBox(),
+            quotation.quotation.discount!=0?   pw.Padding(
+              padding: pw.EdgeInsets.only(top: 0, bottom: 0, right: h / 18, left: h / 18),
+              child: pw.Table(
+                border: pw.TableBorder.symmetric(
+                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                ),
+                columnWidths: {
+                  0: pw.FlexColumnWidth(10),
+                  1: pw.FlexColumnWidth(4),
+                },
+                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                children: [
+                  pw.TableRow(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        children: [pw.TableRow(
+                          children: [
+                            pw.Center(
+                              child: pw.Padding(
+                                padding: pw.EdgeInsets.all(h / 85),
+                                child: pw.Text("Discount ${quotation.quotation.discount} %", style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold,color: PdfColors.red)),
+                              ),
+                            ),
+                          ],
+                        )],
+                      ),
+
+                      pw.Center(
+                        child: pw.Text(
+                          NumberFormat('#,##0').format(quotation.quotation.discount) ==0?"F.O.C":  NumberFormat('#,##0').format(quotation.quotation.total*(quotation.quotation.discount/100)).toString()+" "+"EGP",
+                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ],
+              ),):pw.SizedBox(),
+            pw.Padding(
+              padding: pw.EdgeInsets.only(top: 0, bottom: 10, right: h / 18, left: h / 18),
+              child: pw.Table(
+                border: pw.TableBorder.symmetric(
+                  inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                  outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                ),
+                columnWidths: {
+                  0: pw.FlexColumnWidth(10),
+                  1: pw.FlexColumnWidth(4),
+                },
+                defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                children: [
+                  pw.TableRow(
+                    children: [
+                      pw.Table(
+                        border: pw.TableBorder.symmetric(
+                          inside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                          outside: pw.BorderSide(width: h / 2000, color: PdfColors.black),
+                        ),
+                        children: [pw.TableRow(
+                          children: [
+                            pw.Center(
+                              child: pw.Padding(
+                                padding: pw.EdgeInsets.all(h / 85),
+                                child: pw.Text('Total', style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        )],
+                      ),
+
+                      pw.Center(
+                        child: pw.Text(
+                          NumberFormat('#,##0').format(quotation.quotation.total-(quotation.quotation.total*(quotation.quotation.discount/100))) ==0?"F.O.C":  NumberFormat('#,##0').format(quotation.quotation.total-(quotation.quotation.total*(quotation.quotation.discount/100))).toString()+" "+"EGP",
+                          style: pw.TextStyle(fontSize: h / 85, fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ],
+              ),),///new
+
+            pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
                 pw.Column(
@@ -795,10 +912,10 @@ void generateAndDownloadPdf(New_Quotation_Model quotation,h,bool _download,Data_
   );
 
   final pdfBytes = await pdf.save();
-final blob = html.Blob([pdfBytes]);
+  final blob = html.Blob([pdfBytes]);
   final url = html.Url.createObjectUrlFromBlob(blob);
 
-      if(_download){
+  if(_download){
     final anchor = html.AnchorElement(href: url)
       ..setAttribute('download', '${quotation.quotation.client_model.name}-${quotation.quotation.dec} Quotation.pdf')
       ..click();
