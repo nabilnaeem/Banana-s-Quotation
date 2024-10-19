@@ -35,9 +35,9 @@ class _Quote_requState extends State<Quote_requ> {
             onTap: (){
               Navigator.of(context).push(MaterialPageRoute(builder: (c)=>View_quote_requ(e)));
             },
-            title: Text(e.quotation!.client_model.name),
-            leading: CircleAvatar(
-              child: Text(e.user.name[0]),
+            title: Text("${e.quotation!.client_model.name} / ${e.quotation!.dec}"),
+            leading:  CircleAvatar(
+              child: Text(e.user.name,style: TextStyle(fontSize: 10),),
             ),
             trailing: Icon(Icons.arrow_forward_ios_rounded),
           )).toList(),
